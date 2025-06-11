@@ -4,15 +4,15 @@ module conv_3x3(
     input rst_n,
     input valid_in,
 
-    input signed [7:0] in_data0,
-    input signed [7:0] in_data1,
-    input signed [7:0] in_data2,
-    input signed [7:0] in_data3,
-    input signed [7:0] in_data4,
-    input signed [7:0] in_data5,
-    input signed [7:0] in_data6,
-    input signed [7:0] in_data7,
-    input signed [7:0] in_data8,
+    input signed [7:0] data_in0,
+    input signed [7:0] data_in1,
+    input signed [7:0] data_in2,
+    input signed [7:0] data_in3,
+    input signed [7:0] data_in4,
+    input signed [7:0] data_in5,
+    input signed [7:0] data_in6,
+    input signed [7:0] data_in7,
+    input signed [7:0] data_in8,
 
     input signed [7:0] weight0,
     input signed [7:0] weight1,
@@ -24,7 +24,7 @@ module conv_3x3(
     input signed [7:0] weight7,
     input signed [7:0] weight8,
 
-    output reg signed [15:0] out_data,
+    output reg signed [15:0] data_out,
     output reg valid_out
   );
 
@@ -41,15 +41,15 @@ module conv_3x3(
     else
     begin
       mult_sum <=
-               $signed(in_data0) * $signed(weight0) +
-               $signed(in_data1) * $signed(weight1) +
-               $signed(in_data2) * $signed(weight2) +
-               $signed(in_data3) * $signed(weight3) +
-               $signed(in_data4) * $signed(weight4) +
-               $signed(in_data5) * $signed(weight5) +
-               $signed(in_data6) * $signed(weight6) +
-               $signed(in_data7) * $signed(weight7) +
-               $signed(in_data8) * $signed(weight8);
+               $signed(data_in0) * $signed(weight0) +
+               $signed(data_in1) * $signed(weight1) +
+               $signed(data_in2) * $signed(weight2) +
+               $signed(data_in3) * $signed(weight3) +
+               $signed(data_in4) * $signed(weight4) +
+               $signed(data_in5) * $signed(weight5) +
+               $signed(data_in6) * $signed(weight6) +
+               $signed(data_in7) * $signed(weight7) +
+               $signed(data_in8) * $signed(weight8);
       valid_in_d <= valid_in;
     end
   end
@@ -58,12 +58,12 @@ module conv_3x3(
   begin
     if (!rst_n)
     begin
-      out_data <= 0;
+      data_out <= 0;
       valid_out <= 0;
     end
     else
     begin
-      out_data <= mult_sum;
+      data_out <= mult_sum;
       valid_out <= valid_in_d;
     end
   end
