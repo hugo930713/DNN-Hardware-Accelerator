@@ -1,0 +1,707 @@
+# Reading pref.tcl
+# do week2_run_msim_gate_verilog.do
+# if {[file exists gate_work]} {
+# 	vdel -lib gate_work -all
+# }
+# vlib gate_work
+# vmap work gate_work
+# Model Technology ModelSim - Intel FPGA Edition vmap 2020.1 Lib Mapping Utility 2020.02 Feb 28 2020
+# vmap work gate_work 
+# Copying C:/intelFPGA_lite/20.1/modelsim_ase/win32aloem/../modelsim.ini to modelsim.ini
+# Modifying modelsim.ini
+# 
+# vlog -vlog01compat -work work +incdir+. {week2.vo}
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 15:03:59 on Jun 10,2025
+# vlog -reportprogress 300 -vlog01compat -work work "+incdir+." week2.vo 
+# -- Compiling module top
+# -- Compiling module hard_block
+# 
+# Top level modules:
+# 	top
+# End time: 15:04:03 on Jun 10,2025, Elapsed time: 0:00:04
+# Errors: 0, Warnings: 0
+# 
+# vlog -vlog01compat -work work +incdir+C:/Users/m_User/Desktop/week2 {C:/Users/m_User/Desktop/week2/tb_top.v}
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 15:04:03 on Jun 10,2025
+# vlog -reportprogress 300 -vlog01compat -work work "+incdir+C:/Users/m_User/Desktop/week2" C:/Users/m_User/Desktop/week2/tb_top.v 
+# -- Compiling module tb_top
+# 
+# Top level modules:
+# 	tb_top
+# End time: 15:04:03 on Jun 10,2025, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 
+# vsim -t 1ps -L altera_ver -L altera_lnsim_ver -L fiftyfivenm_ver -L gate_work -L work -voptargs="+acc"  tb_top
+# vsim -t 1ps -L altera_ver -L altera_lnsim_ver -L fiftyfivenm_ver -L gate_work -L work -voptargs=""+acc"" tb_top 
+# Start time: 15:04:03 on Jun 10,2025
+# Loading work.tb_top
+# Loading work.top
+# Loading work.hard_block
+# Loading fiftyfivenm_ver.fiftyfivenm_lcell_comb
+# Loading fiftyfivenm_ver.fiftyfivenm_io_obuf
+# Loading fiftyfivenm_ver.fiftyfivenm_io_ibuf
+# Loading fiftyfivenm_ver.fiftyfivenm_clkctrl
+# Loading fiftyfivenm_ver.fiftyfivenm_mux41
+# Loading fiftyfivenm_ver.fiftyfivenm_ena_reg
+# Loading altera_ver.dffeas
+# Loading fiftyfivenm_ver.fiftyfivenm_unvm
+# Loading fiftyfivenm_ver.fiftyfivenm_adcblock
+# ** Warning: (vsim-PLI-3691) Expected a system task, not a system function '$fscanf'.
+#    Time: 0 ps  Iteration: 0  Instance: /tb_top File: C:/Users/m_User/Desktop/week2/tb_top.v Line: 218
+# Loading altera_ver.PRIM_GDFF_LOW
+# ** Warning: (vsim-2685) [TFMPC] - Too few port connections for '\~QUARTUS_CREATED_ADC1~ '.  Expected 8, found 7.
+#    Time: 0 ps  Iteration: 0  Instance: /tb_top/uut/\~QUARTUS_CREATED_ADC1~  File: week2.vo Line: 788105
+# ** Warning: (vsim-3722) week2.vo(788105): [TFMPC] - Missing connection for port 'clk_dft'.
+# ** Warning: (vsim-2685) [TFMPC] - Too few port connections for '\~QUARTUS_CREATED_ADC2~ '.  Expected 8, found 7.
+#    Time: 0 ps  Iteration: 0  Instance: /tb_top/uut/\~QUARTUS_CREATED_ADC2~  File: week2.vo Line: 788128
+# ** Warning: (vsim-3722) week2.vo(788128): [TFMPC] - Missing connection for port 'clk_dft'.
+# ** Warning: Design size of 95068 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
+# Expect performance to be adversely affected.
+# 
+# add wave *
+# ** Warning: (vsim-WLF-5000) WLF file currently in use: vsim.wlf
+#           File in use by: m_User  Hostname: MULTIMEDIA-PC  ProcessID: 33080
+#           Attempting to use alternate WLF file "./wlftxxmkes".
+# ** Warning: (vsim-WLF-5001) Could not open WLF file: vsim.wlf
+#           Using alternate file: ./wlftxxmkes
+# view structure
+# .main_pane.structure.interior.cs.body.struct
+# view signals
+# .main_pane.objects.interior.cs.body.tree
+# run -all
+# === CNN Test Start (Padding Mode: 01) ===
+# Expected Outputs: Padded Window=8x8, Conv=8x8, Pool=6x6
+# 
+# --- Input Image (Original 0-255, 8x8) ---
+#  123   45   67   89  -46   32   99 -106 
+#   34   -1 -128    0   98   76  120  -76 
+#   65  -66  -56   10 -116   60  110   50 
+#   75   30  -76   -6  100   15   30   25 
+#   90  110  -16   80   70   60  -76  -56 
+#   10   20   30   40   50   60   70   80 
+#   25   55   85   45  105 -121  -86  -46 
+#   10   30   50   70   90  110 -126 -106 
+# 
+# --- Input Image (Converted to INT8, 8x8) ---
+#   -5  -83  -61  -39   82  -96  -29   22 
+#  -94  127    0 -128  -30  -52   -8   52 
+#  -63   62   72 -118   12  -68  -18  -78 
+#  -53  -98   52  122  -28 -113  -98 -103 
+#  -38  -18  112  -48  -58  -68   52   72 
+# -118 -108  -98  -88  -78  -68  -58  -48 
+# -103  -73  -43  -83  -23    7   42   82 
+# -118  -98  -78  -58  -38  -18    2   22 
+# 
+# --- Generating and Displaying Full Padded Image (INT8) ---
+#    0    0    0    0    0    0    0    0    0    0 
+#    0   -5  -83  -61  -39   82  -96  -29   22    0 
+#    0  -94  127    0 -128  -30  -52   -8   52    0 
+#    0  -63   62   72 -118   12  -68  -18  -78    0 
+#    0  -53  -98   52  122  -28 -113  -98 -103    0 
+#    0  -38  -18  112  -48  -58  -68   52   72    0 
+#    0 -118 -108  -98  -88  -78  -68  -58  -48    0 
+#    0 -103  -73  -43  -83  -23    7   42   82    0 
+#    0 -118  -98  -78  -58  -38  -18    2   22    0 
+#    0    0    0    0    0    0    0    0    0    0 
+# Note: The DUT's window_buffer will extract an 8x8 feature map from this padded image for convolution.
+# 
+# === Starting Pixel Input to DUT ===
+# Pixel[0][0] = -5 (Input Pixel #1)
+# Pixel[0][1] = -83 (Input Pixel #2)
+# Pixel[0][2] = -61 (Input Pixel #3)
+# 
+# --- Padded Window Output #1 (Coord: 0, 0) ---
+#      0    0    0
+#      0   -5    0
+#      0    0    0
+# Pixel[0][3] = -39 (Input Pixel #4)
+# 
+# --- Padded Window Output #2 (Coord: 0, 1) ---
+#      0    0    0
+#      0   -5    0
+#      0    0    0
+# Pixel[0][4] = 82 (Input Pixel #5)
+# 
+# --- Padded Window Output #3 (Coord: 0, 2) ---
+#      0    0    0
+#     -5  -61    0
+#      0    0    0
+# Conv[0][0] = 0 (No.1)
+# Pixel[0][5] = -96 (Input Pixel #6)
+# 
+# --- Padded Window Output #4 (Coord: 0, 3) ---
+#      0    0    0
+#    -61  -39    0
+#      0    0    0
+# Conv[0][1] = 0 (No.2)
+# ReLU[0][0] = 0 (No.1)
+# Pixel[0][6] = -29 (Input Pixel #7)
+# 
+# --- Padded Window Output #5 (Coord: 0, 4) ---
+#      0    0    0
+#    -39   82    0
+#      0    0    0
+# Conv[0][2] = -5 (No.3)
+# ReLU[0][1] = 0 (No.2)
+# Pixel[0][7] = 22 (Input Pixel #8)
+# 
+# --- Padded Window Output #6 (Coord: 0, 5) ---
+#      0    0    0
+#     82  -96    0
+#      0    0    0
+# Conv[0][3] = -61 (No.4)
+# ReLU[0][2] = 0 (No.3)
+# Pixel[1][0] = -94 (Input Pixel #9)
+# 
+# --- Padded Window Output #7 (Coord: 0, 6) ---
+#      0    0    0
+#    -96  -29    0
+#      0    0    0
+# Conv[0][4] = -39 (No.5)
+# ReLU[0][3] = 0 (No.4)
+# Pixel[1][1] = 127 (Input Pixel #10)
+# 
+# --- Padded Window Output #8 (Coord: 0, 7) ---
+#      0    0    0
+#    -29   22    0
+#      0    0    0
+# Conv[0][5] = 82 (No.6)
+# ReLU[0][4] = 0 (No.5)
+# Pixel[1][2] = 0 (Input Pixel #11)
+# 
+# --- Padded Window Output #9 (Coord: 1, 0) ---
+#      0    0    0
+#     22  -94    0
+#      0    0    0
+# Conv[0][6] = -96 (No.7)
+# ReLU[0][5] = 82 (No.6)
+# Pixel[1][3] = -128 (Input Pixel #12)
+# 
+# --- Padded Window Output #10 (Coord: 1, 1) ---
+#      0   -5  -61
+#      0  127  -61
+#      0    0    0
+# Conv[0][7] = -29 (No.8)
+# ReLU[0][6] = 0 (No.7)
+# Pixel[1][4] = -30 (Input Pixel #13)
+# 
+# --- Padded Window Output #11 (Coord: 1, 2) ---
+#     -5  -61  -39
+#    127    0  -39
+#      0    0    0
+# Conv[1][0] = 22 (No.9)
+# ReLU[0][7] = 0 (No.8)
+# Pixel[1][5] = -52 (Input Pixel #14)
+# 
+# --- Padded Window Output #12 (Coord: 1, 3) ---
+#    -61  -39   82
+#      0 -128   82
+#      0    0    0
+# Conv[1][1] = 122 (No.10)
+# ReLU[1][0] = 22 (No.9)
+# Pixel[1][6] = -8 (Input Pixel #15)
+# 
+# --- Padded Window Output #13 (Coord: 1, 4) ---
+#    -39   82  -96
+#   -128  -30  -96
+#      0    0    0
+# Conv[1][2] = 200 (No.11)
+# ReLU[1][1] = 122 (No.10)
+# Pixel[1][7] = 52 (Input Pixel #16)
+# 
+# --- Padded Window Output #14 (Coord: 1, 5) ---
+#     82  -96  -29
+#    -30  -52  -29
+#      0    0    0
+# Conv[1][3] = -225 (No.12)
+# ReLU[1][2] = 127 (No.11)
+# Pixel[2][0] = -63 (Input Pixel #17)
+# 
+# --- Padded Window Output #15 (Coord: 1, 6) ---
+#    -96  -29   22
+#    -52   -8   22
+#      0    0    0
+# Conv[1][4] = 25 (No.13)
+# ReLU[1][3] = 0 (No.12)
+# Pixel[2][1] = 62 (Input Pixel #18)
+# 
+# --- Padded Window Output #16 (Coord: 1, 7) ---
+#    -29   22    0
+#     -8   52  -94
+#      0    0    0
+# Conv[1][5] = 110 (No.14)
+# ReLU[1][4] = 25 (No.13)
+# Pixel[2][2] = 72 (Input Pixel #19)
+# 
+# --- Padded Window Output #17 (Coord: 2, 0) ---
+#     52  -94    0
+#     52  -63    0
+#      0    0    0
+# Conv[1][6] = -192 (No.15)
+# ReLU[1][5] = 110 (No.14)
+# Pixel[2][3] = -118 (Input Pixel #20)
+# 
+# --- Padded Window Output #18 (Coord: 2, 1) ---
+#      0  127    0
+#      0   62    0
+#      0    0    0
+# Conv[1][7] = 57 (No.16)
+# ReLU[1][6] = 0 (No.15)
+# Pixel[2][4] = 12 (Input Pixel #21)
+# 
+# --- Padded Window Output #19 (Coord: 2, 2) ---
+#    127    0 -128
+#     62   72 -128
+#      0    0    0
+# Conv[2][0] = 104 (No.17)
+# ReLU[1][7] = 57 (No.16)
+# Pixel[2][5] = -68 (Input Pixel #22)
+# 
+# --- Padded Window Output #20 (Coord: 2, 3) ---
+#      0 -128  -30
+#     72 -118  -30
+#      0    0    0
+# Conv[2][1] = 0 (No.18)
+# ReLU[2][0] = 104 (No.17)
+# Pixel[2][6] = -18 (Input Pixel #23)
+# 
+# --- Padded Window Output #21 (Coord: 2, 4) ---
+#   -128  -30  -52
+#   -118   12  -52
+#      0    0    0
+# Conv[2][2] = 445 (No.19)
+# ReLU[2][1] = 0 (No.18)
+# Pixel[2][7] = -78 (Input Pixel #24)
+# 
+# --- Padded Window Output #22 (Coord: 2, 5) ---
+#    -30  -52   -8
+#     12  -68   -8
+#      0    0    0
+# Conv[2][3] = 132 (No.20)
+# ReLU[2][2] = 127 (No.19)
+# Pixel[3][0] = -53 (Input Pixel #25)
+# 
+# --- Padded Window Output #23 (Coord: 2, 6) ---
+#    -52   -8   52
+#    -68  -18   52
+#      0    0    0
+# Conv[2][4] = -142 (No.21)
+# ReLU[2][3] = 127 (No.20)
+# Pixel[3][1] = -98 (Input Pixel #26)
+# 
+# --- Padded Window Output #24 (Coord: 2, 7) ---
+#     -8   52  -94
+#    -18  -78  -63
+#      0    0    0
+# Conv[2][5] = -2 (No.22)
+# ReLU[2][4] = 0 (No.21)
+# Pixel[3][2] = 52 (Input Pixel #27)
+# 
+# --- Padded Window Output #25 (Coord: 3, 0) ---
+#    -78  -63    0
+#    -78  -53    0
+#      0    0    0
+# Conv[2][6] = -224 (No.23)
+# ReLU[2][5] = 0 (No.22)
+# Pixel[3][3] = 122 (Input Pixel #28)
+# 
+# --- Padded Window Output #26 (Coord: 3, 1) ---
+#      0   62   72
+#      0  -98   72
+#      0    0    0
+# Conv[2][7] = 131 (No.24)
+# ReLU[2][6] = 0 (No.23)
+# Pixel[3][4] = -28 (Input Pixel #29)
+# 
+# --- Padded Window Output #27 (Coord: 3, 2) ---
+#     62   72 -118
+#    -98   52 -118
+#      0    0    0
+# Conv[3][0] = -156 (No.25)
+# ReLU[2][7] = 127 (No.24)
+# Pixel[3][5] = -113 (Input Pixel #30)
+# 
+# --- Padded Window Output #28 (Coord: 3, 3) ---
+#     72 -118   12
+#     52  122   12
+#      0    0    0
+# Conv[3][1] = -144 (No.26)
+# ReLU[3][0] = 0 (No.25)
+# Pixel[3][6] = -98 (Input Pixel #31)
+# 
+# --- Padded Window Output #29 (Coord: 3, 4) ---
+#   -118   12  -68
+#    122  -28  -68
+#      0    0    0
+# Conv[3][2] = 200 (No.27)
+# ReLU[3][1] = 0 (No.26)
+# Pixel[3][7] = -103 (Input Pixel #32)
+# 
+# --- Padded Window Output #30 (Coord: 3, 5) ---
+#     12  -68  -18
+#    -28 -113  -18
+#      0    0    0
+# Conv[3][3] = 100 (No.28)
+# ReLU[3][2] = 127 (No.27)
+# Pool[0][0] = 104 (No.1)
+# Pixel[4][0] = -38 (Input Pixel #33)
+# 
+# --- Padded Window Output #31 (Coord: 3, 6) ---
+#    -68  -18  -78
+#   -113  -98  -78
+#      0    0    0
+# Conv[3][4] = 140 (No.29)
+# ReLU[3][3] = 100 (No.28)
+# Pool[0][1] = 127 (No.2)
+# Pixel[4][1] = -18 (Input Pixel #34)
+# 
+# --- Padded Window Output #32 (Coord: 3, 7) ---
+#    -18  -78  -63
+#    -98 -103  -53
+#      0    0    0
+# Conv[3][5] = 20 (No.30)
+# ReLU[3][4] = 127 (No.29)
+# Pool[0][2] = 127 (No.3)
+# Pixel[4][2] = 112 (Input Pixel #35)
+# 
+# --- Padded Window Output #33 (Coord: 4, 0) ---
+#   -103  -53    0
+#   -103  -38    0
+#      0    0    0
+# Conv[3][6] = -25 (No.31)
+# ReLU[3][5] = 20 (No.30)
+# Pool[0][3] = 127 (No.4)
+# Pixel[4][3] = -48 (Input Pixel #36)
+# 
+# --- Padded Window Output #34 (Coord: 4, 1) ---
+#      0  -98   52
+#      0  -18   52
+#      0    0    0
+# Conv[3][7] = 0 (No.32)
+# ReLU[3][6] = 0 (No.31)
+# Pool[0][4] = 127 (No.5)
+# Pixel[4][4] = -58 (Input Pixel #37)
+# 
+# --- Padded Window Output #35 (Coord: 4, 2) ---
+#    -98   52  122
+#    -18  112  122
+#      0    0    0
+# Conv[4][0] = -206 (No.33)
+# ReLU[3][7] = 0 (No.32)
+# Pool[0][5] = 127 (No.6)
+# Pixel[4][5] = -68 (Input Pixel #38)
+# 
+# --- Padded Window Output #36 (Coord: 4, 3) ---
+#     52  122  -28
+#    112  -48  -28
+#      0    0    0
+# Conv[4][1] = -104 (No.34)
+# ReLU[4][0] = 0 (No.33)
+# Pool[1][0] = 0 (No.7)
+# Pixel[4][6] = 52 (Input Pixel #39)
+# 
+# --- Padded Window Output #37 (Coord: 4, 4) ---
+#    122  -28 -113
+#    -48  -58 -113
+#      0    0    0
+# Conv[4][2] = -360 (No.35)
+# ReLU[4][1] = 0 (No.34)
+# Pool[1][1] = 127 (No.8)
+# Pixel[4][7] = 72 (Input Pixel #40)
+# 
+# --- Padded Window Output #38 (Coord: 4, 5) ---
+#    -28 -113  -98
+#    -58  -68  -98
+#      0    0    0
+# Conv[4][3] = 220 (No.36)
+# ReLU[4][2] = 0 (No.35)
+# Pool[1][2] = 127 (No.9)
+# Pixel[5][0] = -118 (Input Pixel #41)
+# 
+# --- Padded Window Output #39 (Coord: 4, 6) ---
+#   -113  -98 -103
+#    -68   52 -103
+#      0    0    0
+# Conv[4][4] = 300 (No.37)
+# ReLU[4][3] = 127 (No.36)
+# Pool[1][3] = 127 (No.10)
+# Pixel[5][1] = -108 (Input Pixel #42)
+# 
+# --- Padded Window Output #40 (Coord: 4, 7) ---
+#    -98 -103  -53
+#     52   72  -38
+#      0    0    0
+# Conv[4][5] = 110 (No.38)
+# ReLU[4][4] = 127 (No.37)
+# Pool[1][4] = 127 (No.11)
+# Pixel[5][2] = -98 (Input Pixel #43)
+# 
+# --- Padded Window Output #41 (Coord: 5, 0) ---
+#     72  -38    0
+#     72 -118    0
+#      0    0    0
+# Conv[4][6] = 25 (No.39)
+# ReLU[4][5] = 110 (No.38)
+# Pool[1][5] = 127 (No.12)
+# Pixel[5][3] = -88 (Input Pixel #44)
+# 
+# --- Padded Window Output #42 (Coord: 5, 1) ---
+#      0  -18  112
+#      0 -108  112
+#      0    0    0
+# Conv[4][7] = 45 (No.40)
+# ReLU[4][6] = 25 (No.39)
+# Pool[2][0] = 20 (No.13)
+# Pixel[5][4] = -78 (Input Pixel #45)
+# 
+# --- Padded Window Output #43 (Coord: 5, 2) ---
+#    -18  112  -48
+#   -108  -98  -48
+#      0    0    0
+# Conv[5][0] = 144 (No.41)
+# ReLU[4][7] = 45 (No.40)
+# Pool[2][1] = 127 (No.14)
+# Pixel[5][5] = -68 (Input Pixel #46)
+# 
+# --- Padded Window Output #44 (Coord: 5, 3) ---
+#    112  -48  -58
+#    -98  -88  -58
+#      0    0    0
+# Conv[5][1] = -224 (No.42)
+# ReLU[5][0] = 127 (No.41)
+# Pool[2][2] = 127 (No.15)
+# Pixel[5][6] = -58 (Input Pixel #47)
+# 
+# --- Padded Window Output #45 (Coord: 5, 4) ---
+#    -48  -58  -68
+#    -88  -78  -68
+#      0    0    0
+# Conv[5][2] = -30 (No.43)
+# ReLU[5][1] = 0 (No.42)
+# Pool[2][3] = 127 (No.16)
+# Pixel[5][7] = -48 (Input Pixel #48)
+# 
+# --- Padded Window Output #46 (Coord: 5, 5) ---
+#    -58  -68   52
+#    -78  -68   52
+#      0    0    0
+# Conv[5][3] = 130 (No.44)
+# ReLU[5][2] = 0 (No.43)
+# Pool[2][4] = 127 (No.17)
+# Pixel[6][0] = -103 (Input Pixel #49)
+# 
+# --- Padded Window Output #47 (Coord: 5, 6) ---
+#    -68   52   72
+#    -68  -58   72
+#      0    0    0
+# Conv[5][4] = 0 (No.45)
+# ReLU[5][3] = 127 (No.44)
+# Pool[2][5] = 127 (No.18)
+# Pixel[6][1] = -73 (Input Pixel #50)
+# 
+# --- Padded Window Output #48 (Coord: 5, 7) ---
+#     52   72  -38
+#    -58  -48 -118
+#      0    0    0
+# Conv[5][5] = -240 (No.46)
+# ReLU[5][4] = 0 (No.45)
+# Pool[3][0] = 110 (No.19)
+# Pixel[6][2] = -43 (Input Pixel #51)
+# 
+# --- Padded Window Output #49 (Coord: 6, 0) ---
+#    -48 -118    0
+#    -48 -103    0
+#      0    0    0
+# Conv[5][6] = -280 (No.47)
+# ReLU[5][5] = 0 (No.46)
+# Pool[3][1] = 127 (No.20)
+# Pixel[6][3] = -83 (Input Pixel #52)
+# 
+# --- Padded Window Output #50 (Coord: 6, 1) ---
+#      0 -108  -98
+#      0  -73  -98
+#      0    0    0
+# Conv[5][7] = 150 (No.48)
+# ReLU[5][6] = 0 (No.47)
+# Pool[3][2] = 127 (No.21)
+# Pixel[6][4] = -23 (Input Pixel #53)
+# 
+# --- Padded Window Output #51 (Coord: 6, 2) ---
+#   -108  -98  -88
+#    -73  -43  -88
+#      0    0    0
+# Conv[6][0] = -96 (No.49)
+# ReLU[5][7] = 127 (No.48)
+# Pool[3][3] = 127 (No.22)
+# Pixel[6][5] = 7 (Input Pixel #54)
+# 
+# --- Padded Window Output #52 (Coord: 6, 3) ---
+#    -98  -88  -78
+#    -43  -83  -78
+#      0    0    0
+# Conv[6][1] = 196 (No.50)
+# ReLU[6][0] = 0 (No.49)
+# Pool[3][4] = 127 (No.23)
+# Pixel[6][6] = 42 (Input Pixel #55)
+# 
+# --- Padded Window Output #53 (Coord: 6, 4) ---
+#    -88  -78  -68
+#    -83  -23  -68
+#      0    0    0
+# Conv[6][2] = -5 (No.51)
+# ReLU[6][1] = 127 (No.50)
+# Pool[3][5] = 127 (No.24)
+# Pixel[6][7] = 82 (Input Pixel #56)
+# 
+# --- Padded Window Output #54 (Coord: 6, 5) ---
+#    -78  -68  -58
+#    -23    7  -58
+#      0    0    0
+# Conv[6][3] = 15 (No.52)
+# ReLU[6][2] = 0 (No.51)
+# Pool[4][0] = 45 (No.25)
+# Pixel[7][0] = -118 (Input Pixel #57)
+# 
+# --- Padded Window Output #55 (Coord: 6, 6) ---
+#    -68  -58  -48
+#      7   42  -48
+#      0    0    0
+# Conv[6][4] = -35 (No.53)
+# ReLU[6][3] = 15 (No.52)
+# Pool[4][1] = 127 (No.26)
+# Pixel[7][1] = -98 (Input Pixel #58)
+# 
+# --- Padded Window Output #56 (Coord: 6, 7) ---
+#    -58  -48 -118
+#     42   82 -103
+#      0    0    0
+# Conv[6][5] = 15 (No.54)
+# ReLU[6][4] = 0 (No.53)
+# Pool[4][2] = 127 (No.27)
+# Pixel[7][2] = -78 (Input Pixel #59)
+# 
+# --- Padded Window Output #57 (Coord: 7, 0) ---
+#     82 -103    0
+#     82 -118    0
+#      0    0    0
+# Conv[6][6] = 35 (No.55)
+# ReLU[6][5] = 15 (No.54)
+# Pool[4][3] = 127 (No.28)
+# Pixel[7][3] = -58 (Input Pixel #60)
+# 
+# --- Padded Window Output #58 (Coord: 7, 1) ---
+#      0  -73  -43
+#      0  -98  -43
+#      0    0    0
+# Conv[6][7] = 205 (No.56)
+# ReLU[6][6] = 35 (No.55)
+# Pool[4][4] = 127 (No.29)
+# Pixel[7][4] = -38 (Input Pixel #61)
+# 
+# --- Padded Window Output #59 (Coord: 7, 2) ---
+#    -73  -43  -83
+#    -98  -78  -83
+#      0    0    0
+# Conv[7][0] = 164 (No.57)
+# ReLU[6][7] = 127 (No.56)
+# Pool[4][5] = 127 (No.30)
+# Pixel[7][5] = -18 (Input Pixel #62)
+# 
+# --- Padded Window Output #60 (Coord: 7, 3) ---
+#    -43  -83  -23
+#    -78  -58  -23
+#      0    0    0
+# Conv[7][1] = 86 (No.58)
+# ReLU[7][0] = 127 (No.57)
+# Pool[5][0] = 127 (No.31)
+# Pixel[7][6] = 2 (Input Pixel #63)
+# 
+# --- Padded Window Output #61 (Coord: 7, 4) ---
+#    -83  -23    7
+#    -58  -38    7
+#      0    0    0
+# Conv[7][2] = -5 (No.59)
+# ReLU[7][1] = 86 (No.58)
+# Pool[5][1] = 127 (No.32)
+# Pixel[7][7] = 22 (Input Pixel #64)
+# 
+# --- Padded Window Output #62 (Coord: 7, 5) ---
+#    -23    7   42
+#    -38  -18   42
+#      0    0    0
+# Conv[7][3] = -75 (No.60)
+# ReLU[7][2] = 0 (No.59)
+# Pool[5][2] = 127 (No.33)
+# === Pixel Input Complete, Waiting for Results ===
+# Waiting for Padded Window results... (Expected 64)
+# 
+# --- Padded Window Output #63 (Coord: 7, 6) ---
+#      7   42   82
+#    -18    2   82
+#      0    0    0
+# Conv[7][4] = -155 (No.61)
+# ReLU[7][3] = 0 (No.60)
+# Pool[5][3] = 127 (No.34)
+# 
+# --- Padded Window Output #64 (Coord: 7, 7) ---
+#     42   82 -103
+#      2   22 -118
+#      0    0    0
+# Conv[7][5] = -145 (No.62)
+# ReLU[7][4] = 0 (No.61)
+# Pool[5][4] = 127 (No.35)
+# ✅ Padded Window Output Complete (64 results)
+# Waiting for Convolution results... (Expected 64)
+# Conv[7][6] = -175 (No.63)
+# ReLU[7][5] = 0 (No.62)
+# Pool[5][5] = 127 (No.36)
+# Conv[7][7] = 265 (No.64)
+# ReLU[7][6] = 0 (No.63)
+# ✅ Convolution Complete (64 results)
+# Waiting for ReLU results... (Expected 64)
+# ReLU[7][7] = 127 (No.64)
+# ✅ ReLU Complete (64 results)
+# Waiting for Pooling results... (Expected 36)
+# ✅ Pooling Complete (36 results)
+# 
+# --- Final Convolution Results (8x8) ---
+#      0      0     -5    -61    -39     82    -96    -29 
+#     22    122    200   -225     25    110   -192     57 
+#    104      0    445    132   -142     -2   -224    131 
+#   -156   -144    200    100    140     20    -25      0 
+#   -206   -104   -360    220    300    110     25     45 
+#    144   -224    -30    130      0   -240   -280    150 
+#    -96    196     -5     15    -35     15     35    205 
+#    164     86     -5    -75   -155   -145   -175    265 
+# 
+# --- Final ReLU Results (8x8) ---
+#      0      0      0      0      0     82      0      0 
+#     22    122    127      0     25    110      0     57 
+#    104      0    127    127      0      0      0    127 
+#      0      0    127    100    127     20      0      0 
+#      0      0      0    127    127    110     25     45 
+#    127      0      0    127      0      0      0    127 
+#      0    127      0     15      0     15     35    127 
+#    127     86      0      0      0      0      0    127 
+# 
+# --- Final Pooling Results (6x6) ---
+#    104    127    127    127    127    127 
+#      0    127    127    127    127    127 
+#     20    127    127    127    127    127 
+#    110    127    127    127    127    127 
+#     45    127    127    127    127    127 
+#    127    127    127    127    127    127 
+# 
+# === Final Summary ===
+# Total Input Pixels: 64
+# Total Padded Window Outputs: 64 (Expected 64)
+# Total Convolution Outputs: 64 (Expected 64)
+# Total ReLU Outputs: 64 (Expected 64)
+# Total Pooling Outputs: 36 (Expected 36)
+# ✅ Simulation complete. All output counts match expectations. Results saved to output_image_tb.txt
+# ** Note: $finish    : C:/Users/m_User/Desktop/week2/tb_top.v(469)
+#    Time: 1015 ns  Iteration: 1  Instance: /tb_top
+# 1
+# Break in Module tb_top at C:/Users/m_User/Desktop/week2/tb_top.v line 469

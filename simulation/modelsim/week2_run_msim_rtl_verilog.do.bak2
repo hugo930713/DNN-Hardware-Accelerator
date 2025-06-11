@@ -1,0 +1,14 @@
+transcript on
+if {[file exists rtl_work]} {
+	vdel -lib rtl_work -all
+}
+vlib rtl_work
+vmap work rtl_work
+
+vlog -vlog01compat -work work +incdir+C:/Users/m_User/Desktop/week2 {C:/Users/m_User/Desktop/week2/pooling_buffer.v}
+vlog -vlog01compat -work work +incdir+C:/Users/m_User/Desktop/week2 {C:/Users/m_User/Desktop/week2/top.v}
+vlog -vlog01compat -work work +incdir+C:/Users/m_User/Desktop/week2 {C:/Users/m_User/Desktop/week2/relu.v}
+vlog -vlog01compat -work work +incdir+C:/Users/m_User/Desktop/week2 {C:/Users/m_User/Desktop/week2/pooling.v}
+vlog -vlog01compat -work work +incdir+C:/Users/m_User/Desktop/week2 {C:/Users/m_User/Desktop/week2/conv_3x3.v}
+vlog -vlog01compat -work work +incdir+C:/Users/m_User/Desktop/week2 {C:/Users/m_User/Desktop/week2/conv_buffer.v}
+

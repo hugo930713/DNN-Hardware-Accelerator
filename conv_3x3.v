@@ -1,0 +1,71 @@
+// con_3x3.v
+module conv_3x3(
+    input clk,
+    input rst_n,
+    input valid_in,
+
+    input signed [7:0] in_data0,
+    input signed [7:0] in_data1,
+    input signed [7:0] in_data2,
+    input signed [7:0] in_data3,
+    input signed [7:0] in_data4,
+    input signed [7:0] in_data5,
+    input signed [7:0] in_data6,
+    input signed [7:0] in_data7,
+    input signed [7:0] in_data8,
+
+    input signed [7:0] weight0,
+    input signed [7:0] weight1,
+    input signed [7:0] weight2,
+    input signed [7:0] weight3,
+    input signed [7:0] weight4,
+    input signed [7:0] weight5,
+    input signed [7:0] weight6,
+    input signed [7:0] weight7,
+    input signed [7:0] weight8,
+
+    output reg signed [15:0] out_data,
+    output reg valid_out
+  );
+
+  reg signed [15:0] mult_sum;
+  reg valid_in_d;
+
+  always @(posedge clk or negedge rst_n)
+  begin
+    if (!rst_n)
+    begin
+      mult_sum <= 0;
+      valid_in_d <= 0;
+    end
+    else
+    begin
+      mult_sum <=
+               $signed(in_data0) * $signed(weight0) +
+               $signed(in_data1) * $signed(weight1) +
+               $signed(in_data2) * $signed(weight2) +
+               $signed(in_data3) * $signed(weight3) +
+               $signed(in_data4) * $signed(weight4) +
+               $signed(in_data5) * $signed(weight5) +
+               $signed(in_data6) * $signed(weight6) +
+               $signed(in_data7) * $signed(weight7) +
+               $signed(in_data8) * $signed(weight8);
+      valid_in_d <= valid_in;
+    end
+  end
+
+  always @(posedge clk or negedge rst_n)
+  begin
+    if (!rst_n)
+    begin
+      out_data <= 0;
+      valid_out <= 0;
+    end
+    else
+    begin
+      out_data <= mult_sum;
+      valid_out <= valid_in_d;
+    end
+  end
+
+endmodule
