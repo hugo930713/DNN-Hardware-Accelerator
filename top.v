@@ -1,4 +1,4 @@
-// 修正版 top.v with padding support
+// top.v
 module top (
     input clk,
     input rst_n,
@@ -16,7 +16,7 @@ module top (
     output signed [7:0] relu_result,
     output valid_conv_out,
     output valid_relu_out,
-    // 新增：padding 後的 3x3 視窗輸出 (方便 debug)
+    // padding 後的 3x3 視窗輸出
     output signed [7:0] debug_win_out0,
     output signed [7:0] debug_win_out1,
     output signed [7:0] debug_win_out2,
@@ -26,7 +26,7 @@ module top (
     output signed [7:0] debug_win_out6,
     output signed [7:0] debug_win_out7,
     output signed [7:0] debug_win_out8,
-    output valid_window_out // 方便 debug
+    output valid_window_out
   );
 
   // 第1級：帶padding的輸入window buffer
@@ -49,20 +49,20 @@ module top (
                                       .valid_out(valid_window)
                                     );
 
-  // 第2級：卷積 (使用您原有的conv_3x3模組)
+  // 第2級：卷積
   wire signed [15:0] conv_out;
 
   conv_3x3 conv (
              .clk(clk),
              .rst_n(rst_n),
              .valid_in(valid_window),
-             .in_data0(win_out0), .in_data1(win_out1), .in_data2(win_out2),
-             .in_data3(win_out3), .in_data4(win_out4), .in_data5(win_out5),
-             .in_data6(win_out6), .in_data7(win_out7), .in_data8(win_out8),
+             .data_in0(win_out0), .data_in1(win_out1), .data_in2(win_out2),
+             .data_in3(win_out3), .data_in4(win_out4), .data_in5(win_out5),
+             .data_in6(win_out6), .data_in7(win_out7), .data_in8(win_out8),
              .weight0(8'sd1), .weight1(8'sd0), .weight2(-8'sd1),
              .weight3(8'sd1), .weight4(8'sd0), .weight5(-8'sd1),
              .weight6(8'sd1), .weight7(8'sd0), .weight8(-8'sd1),
-             .out_data(conv_out),
+             .data_out(conv_out),
              .valid_out(valid_conv_out)
            );
 
@@ -73,12 +73,12 @@ module top (
          .clk(clk),
          .rst_n(rst_n),
          .valid_in(valid_conv_out),
-         .din(conv_out),
-         .dout(relu_out),
+         .data_in(conv_out),
+         .data_out(relu_out),
          .valid_out(valid_relu_out)
        );
 
-  // 第4級：特徵圖window buffer（為pooling準備）
+  // 第4級：特徵圖window buffer
   // 計算卷積後的特徵圖尺寸
   wire [7:0] feature_width, feature_height;
 
@@ -98,7 +98,7 @@ module top (
                                       .data_in(relu_out),
                                       .img_width(feature_width),
                                       .img_height(feature_height),
-                                      .padding_mode(2'b00),  // pooling通常不使用padding
+                                      .padding_mode(2'b00),
                                       .data_out0(pool_win0), .data_out1(pool_win1), .data_out2(pool_win2),
                                       .data_out3(pool_win3), .data_out4(pool_win4), .data_out5(pool_win5),
                                       .data_out6(pool_win6), .data_out7(pool_win7), .data_out8(pool_win8),
