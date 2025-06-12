@@ -1,140 +1,175 @@
-// top.v
-module top (
-    input clk,
-    input rst_n,
-    input valid_in,
-    input signed [7:0] pixel_in,
-    input [7:0] img_width,     // 圖像寬度
-    input [7:0] img_height,    // 圖像高度
-    input [1:0] padding_mode,  // 00: no padding, 01: zero padding, 10: edge padding
+`timescale 1ns/1ps
 
-    output signed [7:0] dout,
-    output valid_out,
+module top #(
+  parameter IMG_WIDTH = 8,
+  parameter IMG_HEIGHT = 8
+)(
+  input clk,
+  input rst_n,
 
-    // Debug輸出
-    output signed [15:0] conv_result,
-    output signed [7:0] relu_result,
-    output valid_conv_out,
-    output valid_relu_out,
-    // padding 後的 3x3 視窗輸出
-    output signed [7:0] debug_win_out0,
-    output signed [7:0] debug_win_out1,
-    output signed [7:0] debug_win_out2,
-    output signed [7:0] debug_win_out3,
-    output signed [7:0] debug_win_out4,
-    output signed [7:0] debug_win_out5,
-    output signed [7:0] debug_win_out6,
-    output signed [7:0] debug_win_out7,
-    output signed [7:0] debug_win_out8,
-    output valid_window_out
+  input valid_in,           // 輸入 pixel 有效信號
+  input [7:0] pixel_in,     // 輸入 pixel
+
+  output valid_final_out,   // 最終輸出有效信號
+  output [7:0] data_final_out  // 最終輸出資料
+);
+
+  // --- window buffer signals ---
+  wire win_valid_out;
+  wire signed [7:0] win_data_out0, win_data_out1, win_data_out2;
+  wire signed [7:0] win_data_out3, win_data_out4, win_data_out5;
+  wire signed [7:0] win_data_out6, win_data_out7, win_data_out8;
+
+  // --- conv interface ---
+  wire conv_valid_in;
+  wire signed [7:0] conv_data_in0, conv_data_in1, conv_data_in2;
+  wire signed [7:0] conv_data_in3, conv_data_in4, conv_data_in5;
+  wire signed [7:0] conv_data_in6, conv_data_in7, conv_data_in8;
+  wire conv_valid_out;
+  wire signed [15:0] conv_data_out;
+
+  // --- relu interface ---
+  wire relu_valid_in;
+  wire signed [7:0] relu_data_in;
+  wire relu_valid_out;
+  wire [7:0] relu_data_out;
+
+  // --- pooling interface ---
+  wire pool_valid_in;
+  wire signed [7:0] pool_data_in0, pool_data_in1, pool_data_in2;
+  wire signed [7:0] pool_data_in3, pool_data_in4, pool_data_in5;
+  wire signed [7:0] pool_data_in6, pool_data_in7, pool_data_in8;
+  wire pool_valid_out;
+  wire signed [7:0] pool_data_out;
+
+  // --- final output from pipeline controller ---
+  wire valid_final_out_wire;
+  wire [7:0] data_final_out_wire;
+
+  // 1. window buffer
+  window_buffer_3x3_2d_with_padding #(
+    .IMG_WIDTH(IMG_WIDTH),
+    .IMG_HEIGHT(IMG_HEIGHT)
+  ) win_buf (
+    .clk(clk),
+    .rst_n(rst_n),
+    .valid_in(valid_in),
+    .pixel_in(pixel_in),
+
+    .valid_out(win_valid_out),
+    .data_out0(win_data_out0),
+    .data_out1(win_data_out1),
+    .data_out2(win_data_out2),
+    .data_out3(win_data_out3),
+    .data_out4(win_data_out4),
+    .data_out5(win_data_out5),
+    .data_out6(win_data_out6),
+    .data_out7(win_data_out7),
+    .data_out8(win_data_out8)
   );
 
-  // 第1級：帶padding的輸入window buffer
-  wire signed [7:0] win_out0, win_out1, win_out2;
-  wire signed [7:0] win_out3, win_out4, win_out5;
-  wire signed [7:0] win_out6, win_out7, win_out8;
-  wire valid_window;
+  // 2. pipeline controller FSM
+  pipeline_controller ctrl (
+    .clk(clk),
+    .rst_n(rst_n),
 
-  window_buffer_3x3_2d_with_padding input_win_buf (
-                                      .clk(clk),
-                                      .rst_n(rst_n),
-                                      .valid_in(valid_in),
-                                      .data_in(pixel_in),
-                                      .img_width(img_width),
-                                      .img_height(img_height),
-                                      .padding_mode(padding_mode),
-                                      .data_out0(win_out0), .data_out1(win_out1), .data_out2(win_out2),
-                                      .data_out3(win_out3), .data_out4(win_out4), .data_out5(win_out5),
-                                      .data_out6(win_out6), .data_out7(win_out7), .data_out8(win_out8),
-                                      .valid_out(valid_window)
-                                    );
+    .win_valid_out(win_valid_out),
+    .data_in0(win_data_out0),
+    .data_in1(win_data_out1),
+    .data_in2(win_data_out2),
+    .data_in3(win_data_out3),
+    .data_in4(win_data_out4),
+    .data_in5(win_data_out5),
+    .data_in6(win_data_out6),
+    .data_in7(win_data_out7),
+    .data_in8(win_data_out8),
 
-  // 第2級：卷積
-  wire signed [15:0] conv_out;
+    .conv_valid_in(conv_valid_in),
+    .conv_data_in0(conv_data_in0),
+    .conv_data_in1(conv_data_in1),
+    .conv_data_in2(conv_data_in2),
+    .conv_data_in3(conv_data_in3),
+    .conv_data_in4(conv_data_in4),
+    .conv_data_in5(conv_data_in5),
+    .conv_data_in6(conv_data_in6),
+    .conv_data_in7(conv_data_in7),
+    .conv_data_in8(conv_data_in8),
+    .conv_valid_out(conv_valid_out),
+    .conv_data_out(conv_data_out),
 
-  conv_3x3 conv (
-             .clk(clk),
-             .rst_n(rst_n),
-             .valid_in(valid_window),
-             .data_in0(win_out0), .data_in1(win_out1), .data_in2(win_out2),
-             .data_in3(win_out3), .data_in4(win_out4), .data_in5(win_out5),
-             .data_in6(win_out6), .data_in7(win_out7), .data_in8(win_out8),
-             .weight0(8'sd1), .weight1(8'sd0), .weight2(-8'sd1),
-             .weight3(8'sd1), .weight4(8'sd0), .weight5(-8'sd1),
-             .weight6(8'sd1), .weight7(8'sd0), .weight8(-8'sd1),
-             .data_out(conv_out),
-             .valid_out(valid_conv_out)
-           );
+    .relu_valid_in(relu_valid_in),
+    .relu_data_in(relu_data_in),
+    .relu_valid_out(relu_valid_out),
+    .relu_data_out(relu_data_out),
 
-  // 第3級：ReLU
-  wire signed [7:0] relu_out;
+    .pool_valid_in(pool_valid_in),
+    .pool_data_in0(pool_data_in0),
+    .pool_data_in1(pool_data_in1),
+    .pool_data_in2(pool_data_in2),
+    .pool_data_in3(pool_data_in3),
+    .pool_data_in4(pool_data_in4),
+    .pool_data_in5(pool_data_in5),
+    .pool_data_in6(pool_data_in6),
+    .pool_data_in7(pool_data_in7),
+    .pool_data_in8(pool_data_in8),
+    .pool_valid_out(pool_valid_out),
+    .pool_data_out(pool_data_out),
 
-  relu relu_inst (
-         .clk(clk),
-         .rst_n(rst_n),
-         .valid_in(valid_conv_out),
-         .data_in(conv_out),
-         .data_out(relu_out),
-         .valid_out(valid_relu_out)
-       );
+    .valid_final_out(valid_final_out_wire),
+    .data_final_out(data_final_out_wire)
+  );
 
-  // 第4級：特徵圖window buffer
-  // 計算卷積後的特徵圖尺寸
-  wire [7:0] feature_width, feature_height;
+  // 3. conv3x3 multicycle
+  conv3x3_multicycle conv (
+    .clk(clk),
+    .rst_n(rst_n),
+    .valid_in(conv_valid_in),
+    .data_in0(conv_data_in0),
+    .data_in1(conv_data_in1),
+    .data_in2(conv_data_in2),
+    .data_in3(conv_data_in3),
+    .data_in4(conv_data_in4),
+    .data_in5(conv_data_in5),
+    .data_in6(conv_data_in6),
+    .data_in7(conv_data_in7),
+    .data_in8(conv_data_in8),
+    .valid_out(conv_valid_out),
+    .data_out(conv_data_out)
+  );
 
-  // 根據padding模式計算特徵圖尺寸
-  assign feature_width = (padding_mode == 2'b00) ? (img_width - 2) : img_width;   // no padding時縮小2
-  assign feature_height = (padding_mode == 2'b00) ? (img_height - 2) : img_height;
+  // 4. relu multicycle
+  relu_multicycle relu (
+    .clk(clk),
+    .rst_n(rst_n),
+    .valid_in(relu_valid_in),
+    .data_in(relu_data_in),
+    .valid_out(relu_valid_out),
+    .data_out(relu_data_out)
+  );
 
-  wire signed [7:0] pool_win0, pool_win1, pool_win2;
-  wire signed [7:0] pool_win3, pool_win4, pool_win5;
-  wire signed [7:0] pool_win6, pool_win7, pool_win8;
-  wire valid_pool_in;
+  // 5. pool multicycle
+  pool_multicycle pool (
+    .clk(clk),
+    .rst_n(rst_n),
+    .valid_in(pool_valid_in),
+    .data_in0(pool_data_in0),
+    .data_in1(pool_data_in1),
+    .data_in2(pool_data_in2),
+    .data_in3(pool_data_in3),
+    .data_in4(pool_data_in4),
+    .data_in5(pool_data_in5),
+    .data_in6(pool_data_in6),
+    .data_in7(pool_data_in7),
+    .data_in8(pool_data_in8),
+    .valid_out(pool_valid_out),
+    .data_out(pool_data_out)
+  );
 
-  window_buffer_3x3_2d_with_padding feature_win_buf (
-                                      .clk(clk),
-                                      .rst_n(rst_n),
-                                      .valid_in(valid_relu_out),
-                                      .data_in(relu_out),
-                                      .img_width(feature_width),
-                                      .img_height(feature_height),
-                                      .padding_mode(2'b00),
-                                      .data_out0(pool_win0), .data_out1(pool_win1), .data_out2(pool_win2),
-                                      .data_out3(pool_win3), .data_out4(pool_win4), .data_out5(pool_win5),
-                                      .data_out6(pool_win6), .data_out7(pool_win7), .data_out8(pool_win8),
-                                      .valid_out(valid_pool_in)
-                                    );
-
-  // 第5級：Pooling
-  wire signed [7:0] pool_out;
-  wire valid_pool_out;
-
-  pooling pool (
-            .clk(clk),
-            .rst_n(rst_n),
-            .valid_in(valid_pool_in),
-            .data_in0(pool_win0), .data_in1(pool_win1), .data_in2(pool_win2),
-            .data_in3(pool_win3), .data_in4(pool_win4), .data_in5(pool_win5),
-            .data_in6(pool_win6), .data_in7(pool_win7), .data_in8(pool_win8),
-            .max_out(pool_out),
-            .valid_out(valid_pool_out)
-          );
-
-  // 輸出分配
-  assign conv_result = conv_out;
-  assign relu_result = relu_out;
-  assign dout = pool_out;
-  assign valid_out = valid_pool_out;
-
-  assign debug_win_out0 = win_out0;
-  assign debug_win_out1 = win_out1;
-  assign debug_win_out2 = win_out2;
-  assign debug_win_out3 = win_out3;
-  assign debug_win_out4 = win_out4;
-  assign debug_win_out5 = win_out5;
-  assign debug_win_out6 = win_out6;
-  assign debug_win_out7 = win_out7;
-  assign debug_win_out8 = win_out8;
-  assign valid_window_out = valid_window;
+  // output assignments
+  assign valid_final_out = valid_final_out_wire;
+  assign data_final_out = data_final_out_wire;
 
 endmodule
+
+
+
