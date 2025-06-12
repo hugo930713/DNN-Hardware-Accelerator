@@ -1,4 +1,5 @@
-// con_3x3.v
+// conv_3x3.v
+
 module conv_3x3(
     input clk,
     input rst_n,
@@ -24,13 +25,14 @@ module conv_3x3(
     input signed [7:0] weight7,
     input signed [7:0] weight8,
 
-    output reg signed [15:0] data_out,
+    output reg signed [15:0] data_out,  // 16位輸出，不應用飽和運算
     output reg valid_out
   );
 
-  reg signed [15:0] mult_sum;
+  reg signed [19:0] mult_sum; // 累加器寬度夠大
   reg valid_in_d;
 
+  // 先做乘加，累加到夠寬的暫存器
   always @(posedge clk or negedge rst_n)
   begin
     if (!rst_n)
@@ -40,6 +42,7 @@ module conv_3x3(
     end
     else
     begin
+      // 使用原始卷積核：[1, 0, -1]
       mult_sum <=
                $signed(data_in0) * $signed(weight0) +
                $signed(data_in1) * $signed(weight1) +
@@ -54,6 +57,7 @@ module conv_3x3(
     end
   end
 
+  // 直接輸出mult_sum的低16位，不應用飽和運算
   always @(posedge clk or negedge rst_n)
   begin
     if (!rst_n)
@@ -63,7 +67,8 @@ module conv_3x3(
     end
     else
     begin
-      data_out <= mult_sum;
+      // 直接輸出mult_sum的低16位
+      data_out <= mult_sum[15:0];
       valid_out <= valid_in_d;
     end
   end
