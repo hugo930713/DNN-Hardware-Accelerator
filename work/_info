@@ -1,0 +1,165 @@
+m255
+K4
+z2
+!s11f vlog 2020.1 2020.02, Feb 28 2020
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 dC:/Users/m_User/Desktop/DNN-Hardware-Accelerator
+vconv_3x3
+!s110 1749695247
+!i10b 1
+!s100 OK6=Fi`ld`:dhH82fWZ5N0
+Z1 !s11b Dg1SIo80bB@j0V0VzS_@n1
+IREV^Ui4Ih7^TER@eUejnS0
+Z2 VDg1SIo80bB@j0V0VzS_@n1
+R0
+w1749695244
+8conv_3x3.v
+Fconv_3x3.v
+!i122 7
+L0 2 78
+Z3 OV;L;2020.1;71
+r1
+!s85 0
+31
+!s108 1749695247.000000
+!s107 conv_3x3.v|
+!s90 conv_3x3.v|
+!i113 1
+Z4 tCvgOpt 0
+vpooling
+Z5 !s110 1749695222
+!i10b 1
+!s100 Gf0@2Nm2?3iXKAW]ezAKb1
+R1
+Ibim:L=1BKGFFMNWO3YF?l1
+R2
+R0
+w1749637688
+8pooling.v
+Fpooling.v
+!i122 6
+L0 2 69
+R3
+r1
+!s85 0
+31
+Z6 !s108 1749695222.000000
+Z7 !s107 window_buffer_3x3_2d_with_padding.v|window_buffer_3x3_2d.v|top.v|tb_top.v|relu.v|pooling.v|final_corrected_window_buffer.v|conv_3x3.v|
+Z8 !s90 conv_3x3.v|final_corrected_window_buffer.v|pooling.v|relu.v|tb_top.v|top.v|window_buffer_3x3_2d.v|window_buffer_3x3_2d_with_padding.v|
+!i113 1
+R4
+vrelu
+R5
+!i10b 1
+!s100 iD0n;D9<1lK6ZBLd6zGL42
+R1
+ImfXG_V4>nBf1zdCBISh3i2
+R2
+R0
+w1749625256
+8relu.v
+Frelu.v
+!i122 6
+L0 2 40
+R3
+r1
+!s85 0
+31
+R6
+R7
+R8
+!i113 1
+R4
+vtb_top
+R5
+!i10b 1
+!s100 RUgcl0`gZoXaTiLY`bbBg0
+R1
+ITHalfG:VY<818QgbSlWZb1
+R2
+R0
+w1749694735
+8tb_top.v
+Ftb_top.v
+!i122 6
+L0 3 486
+R3
+r1
+!s85 0
+31
+R6
+R7
+R8
+!i113 1
+R4
+vtop
+R5
+!i10b 1
+!s100 ?NBe76b@cfkcZazm3F>Xo0
+R1
+IF5hNCMdFiH`WDmQIY:EWg0
+R2
+R0
+w1749658824
+8top.v
+Ftop.v
+!i122 6
+L0 2 139
+R3
+r1
+!s85 0
+31
+R6
+R7
+R8
+!i113 1
+R4
+vwindow_buffer_3x3_2d
+R5
+!i10b 1
+!s100 9HbR5?Z[i4S26U6joo@Em2
+R1
+I<21dYW_AeMJOl4Y3K8[2g1
+R2
+R0
+w1749371069
+8window_buffer_3x3_2d.v
+Fwindow_buffer_3x3_2d.v
+!i122 6
+L0 2 124
+R3
+r1
+!s85 0
+31
+R6
+R7
+R8
+!i113 1
+R4
+vwindow_buffer_3x3_2d_with_padding
+R5
+!i10b 1
+!s100 Q;JVc2Ck7^]R]^_HX[hef2
+R1
+Ib89I_a7J41coI27h;ZFW70
+R2
+R0
+w1749694896
+8window_buffer_3x3_2d_with_padding.v
+Fwindow_buffer_3x3_2d_with_padding.v
+!i122 6
+L0 1 115
+R3
+r1
+!s85 0
+31
+R6
+R7
+R8
+!i113 1
+R4

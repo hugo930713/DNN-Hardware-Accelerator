@@ -39,10 +39,10 @@ module window_buffer_3x3_2d_with_padding (
 
       if (valid_in)
       begin
-        // 先寫入新像素到line2
+        // 關鍵修正1: 先寫入新像素到line2
         line2[col] <= data_in;
 
-        // 在每行開始時推進line buffer（除了第一行）
+        // 關鍵修正2: 在每行開始時推進line buffer（除了第一行）
         if (row >= 1 && col == 0)
         begin
           for (i = 0; i < MAX_WIDTH; i = i + 1)
@@ -52,18 +52,13 @@ module window_buffer_3x3_2d_with_padding (
           end
         end
 
-        // 修正：產生完整的 8×8 輸出，對應 Python 標準實現
-        // 第一個 window 在 row=0, col=0 時產生
-        if (row >= 0 && col >= 0)
+        // 關鍵修正3: 正確的window生成條件和邏輯
+        // 對於zero padding，第一個window應該在輸入第二行第二個像素時產生
+        if (row >= 1 && col >= 1)
         begin
+          // 產生3x3 window，完全對應Python標準實現
           // 第一行：上方的zero padding或原始數據
-          if (row == 0)
-          begin
-            data_out0 <= 0;  // 左上 - zero padding
-            data_out1 <= 0;  // 上中 - zero padding
-            data_out2 <= 0;  // 右上 - zero padding
-          end
-          else if (row == 1)
+          if (row == 1)
           begin
             data_out0 <= 0;  // 左上 - zero padding
             data_out1 <= 0;  // 上中 - zero padding
@@ -71,49 +66,37 @@ module window_buffer_3x3_2d_with_padding (
           end
           else
           begin
-            data_out0 <= (col == 0) ? 0 : line0[col-1];  // 左上
-            data_out1 <= line0[col];    // 上中
-            data_out2 <= (col == img_width-1) ? 0 : line0[col+1];  // 右上
+            data_out0 <= (col == 1) ? 0 : line0[col-2];  // 左上
+            data_out1 <= line0[col-1];    // 上中
+            data_out2 <= (col == img_width) ? 0 : line0[col];  // 右上
           end
 
           // 第二行：中間行
-          if (row == 0)
+          if (row == 1 && col == 1)
           begin
             data_out3 <= 0;  // 左中 - zero padding
-            data_out4 <= 0;  // 中心 - zero padding
-            data_out5 <= 0;  // 右中 - zero padding
-          end
-          else if (row == 1)
-          begin
-            data_out3 <= (col == 0) ? 0 : line1[col-1];  // 左中
-            data_out4 <= line1[col];    // 中心
-            data_out5 <= (col == img_width-1) ? 0 : line1[col+1];  // 右中
+            data_out4 <= line1[0];  // 中心 - 使用line1的第一個值
+            data_out5 <= line1[1];  // 右中 - 使用line1的第二個值（關鍵修正）
           end
           else
           begin
-            data_out3 <= (col == 0) ? 0 : line1[col-1];  // 左中
-            data_out4 <= line1[col];    // 中心
-            data_out5 <= (col == img_width-1) ? 0 : line1[col+1];  // 右中
+            data_out3 <= (col == 1) ? 0 : line1[col-2];  // 左中
+            data_out4 <= line1[col-1];    // 中心
+            data_out5 <= (col == img_width) ? 0 : line1[col];  // 右中
           end
 
           // 第三行：下方行
-          if (row == 0)
+          if (row == 1 && col == 1)
           begin
             data_out6 <= 0;  // 左下 - zero padding
-            data_out7 <= 0;  // 下中 - zero padding
-            data_out8 <= 0;  // 右下 - zero padding
-          end
-          else if (row == 1)
-          begin
-            data_out6 <= (col == 0) ? 0 : line2[col-1];  // 左下
-            data_out7 <= line2[col];    // 下中
-            data_out8 <= (col == img_width-1) ? 0 : line2[col+1];  // 右下
+            data_out7 <= line2[0];  // 下中 - 使用line2的第一個值
+            data_out8 <= data_in;  // 右下 - 使用當前輸入值
           end
           else
           begin
-            data_out6 <= (col == 0) ? 0 : line2[col-1];  // 左下
-            data_out7 <= line2[col];    // 下中
-            data_out8 <= (col == img_width-1) ? 0 : line2[col+1];  // 右下
+            data_out6 <= (col == 1) ? 0 : line2[col-2];  // 左下
+            data_out7 <= line2[col-1];    // 下中
+            data_out8 <= data_in;  // 右下 - 使用當前輸入值
           end
 
           valid_out <= 1;

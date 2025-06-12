@@ -7,7 +7,7 @@ vmap work gate_work
 
 vlog -vlog01compat -work work +incdir+. {week2.vo}
 
-vlog -vlog01compat -work work +incdir+C:/Users/m_User/Desktop/week2 {C:/Users/m_User/Desktop/week2/tb_top.v}
+vlog -vlog01compat -work work +incdir+C:/Users/m_User/Desktop/DNN-Hardware-Accelerator {C:/Users/m_User/Desktop/DNN-Hardware-Accelerator/tb_top.v}
 
 vsim -t 1ps -L altera_ver -L altera_lnsim_ver -L fiftyfivenm_ver -L gate_work -L work -voptargs="+acc"  tb_top
 
