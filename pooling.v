@@ -41,11 +41,22 @@ module pooling (
       pool_array[8] <= data_in8;
 
       max_val = data_in0;
-      for (i = 1; i < 9; i = i + 1)
-      begin
-        if (pool_array[i] > max_val)
-          max_val = pool_array[i];
-      end
+      if (data_in1 > max_val)
+        max_val = data_in1;
+      if (data_in2 > max_val)
+        max_val = data_in2;
+      if (data_in3 > max_val)
+        max_val = data_in3;
+      if (data_in4 > max_val)
+        max_val = data_in4;
+      if (data_in5 > max_val)
+        max_val = data_in5;
+      if (data_in6 > max_val)
+        max_val = data_in6;
+      if (data_in7 > max_val)
+        max_val = data_in7;
+      if (data_in8 > max_val)
+        max_val = data_in8;
 
       max_out <= max_val;
       valid_out <= 1;
