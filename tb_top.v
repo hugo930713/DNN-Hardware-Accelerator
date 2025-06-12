@@ -298,10 +298,10 @@ module tb_top;
 
     // --- Display and Write Final Matrices ---
     $display("\n--- Final Convolution Results (%0dx%0d) ---", ACTUAL_CONV_DIM, ACTUAL_CONV_DIM);
-    f_out = $fopen("output_image_tb_fixed.txt", "w"); // Open file for writing results
+    f_out = $fopen("output_image_tb.txt", "w"); // Open file for writing results
     if (f_out == 0)
     begin
-      $display("❌ Error: Cannot open output_image_tb_fixed.txt for writing.");
+      $display("❌ Error: Cannot open output_image_tb.txt for writing.");
     end
     else
     begin
@@ -361,7 +361,7 @@ module tb_top;
         pool_count == expected_pool_count &&
         window_count == expected_window_count) // Check all counts
     begin
-      $display("✅ Simulation complete. All output counts match expectations. Results saved to output_image_tb_fixed.txt");
+      $display("✅ Simulation complete. All output counts match expectations. Results saved to output_image_tb.txt");
     end
     else
     begin
