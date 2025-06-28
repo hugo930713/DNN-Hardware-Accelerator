@@ -39,10 +39,10 @@ module window_buffer_3x3_2d_with_padding (
 
       if (valid_in)
       begin
-        // 關鍵修正1: 先寫入新像素到line2
+        // 先寫入新像素到line2
         line2[col] <= data_in;
 
-        // 關鍵修正2: 在每行開始時推進line buffer（除了第一行）
+        // 在每行開始時推進line buffer（除了第一行）
         if (row >= 1 && col == 0)
         begin
           for (i = 0; i < MAX_WIDTH; i = i + 1)
@@ -52,7 +52,6 @@ module window_buffer_3x3_2d_with_padding (
           end
         end
 
-        // 關鍵修正3: 正確的window生成條件和邏輯
         // 對於zero padding，第一個window應該在輸入第二行第二個像素時產生
         if (row >= 1 && col >= 1)
         begin
