@@ -5,114 +5,114 @@ module window_buffer_3x3_2d_with_padding (
     input signed [7:0] data_in,
     input [7:0] img_width,
     input [7:0] img_height,
-    input [1:0] padding_mode, // 只支援 01: zero padding
+    input [1:0] padding_mode, // 00: zero padding
     output reg signed [7:0] data_out0, data_out1, data_out2,
     output reg signed [7:0] data_out3, data_out4, data_out5,
     output reg signed [7:0] data_out6, data_out7, data_out8,
     output reg valid_out
   );
-  parameter MAX_WIDTH = 256;
-  reg signed [7:0] line0[0:MAX_WIDTH-1];
-  reg signed [7:0] line1[0:MAX_WIDTH-1];
-  reg signed [7:0] line2[0:MAX_WIDTH-1];
-  reg [7:0] col, row;
-  integer i;
+
+  // 直接儲存整個影像然後逐個輸出窗口
+  parameter MAX_SIZE = 256;
+  reg signed [7:0] image_mem [0:MAX_SIZE-1];
+
+  reg [7:0] input_count;
+  reg [7:0] output_row, output_col;
+  reg input_done;
+
+  integer i, j;
+
+  // 根據位置和padding取得像素值
+  function signed [7:0] get_pixel;
+    input signed [7:0] row, col;
+    begin
+      if (row < 0 || row >= img_height || col < 0 || col >= img_width)
+      begin
+        get_pixel = 0; // Zero padding
+      end
+      else
+      begin
+        get_pixel = image_mem[row * img_width + col];
+      end
+    end
+  endfunction
 
   always @(posedge clk or negedge rst_n)
   begin
     if (!rst_n)
     begin
-      col <= 0;
-      row <= 0;
+      input_count <= 0;
+      output_row <= 0;
+      output_col <= 0;
+      input_done <= 0;
       valid_out <= 0;
-      for (i = 0; i < MAX_WIDTH; i = i + 1)
+
+      // 清除影像記憶體
+      for (i = 0; i < MAX_SIZE; i = i + 1)
       begin
-        line0[i] <= 0;
-        line1[i] <= 0;
-        line2[i] <= 0;
+        image_mem[i] <= 0;
       end
-      {data_out0,data_out1,data_out2,data_out3,data_out4,data_out5,data_out6,data_out7,data_out8} <= 0;
+
     end
     else
     begin
-      valid_out <= 0;
 
-      if (valid_in)
+      // 第一階段：接收並儲存輸入資料
+      if (valid_in && !input_done)
       begin
-        // 關鍵修正1: 先寫入新像素到line2
-        line2[col] <= data_in;
+        image_mem[input_count] <= data_in;
+        input_count <= input_count + 1;
 
-        // 關鍵修正2: 在每行開始時推進line buffer（除了第一行）
-        if (row >= 1 && col == 0)
+        // 檢查是否接收完所有資料
+        if (input_count == img_width * img_height - 1)
         begin
-          for (i = 0; i < MAX_WIDTH; i = i + 1)
-          begin
-            line0[i] <= line1[i];
-            line1[i] <= line2[i];
-          end
+          input_done <= 1;
+          output_row <= 0;
+          output_col <= 0;
         end
+      end
 
-        // 關鍵修正3: 正確的window生成條件和邏輯
-        // 對於zero padding，第一個window應該在輸入第二行第二個像素時產生
-        if (row >= 1 && col >= 1)
+      // 第二階段：輸出3x3窗口
+      else if (input_done)
+      begin
+        if (output_row < img_height && output_col < img_width)
         begin
-          // 產生3x3 window，完全對應Python標準實現
-          // 第一行：上方的zero padding或原始數據
-          if (row == 1)
-          begin
-            data_out0 <= 0;  // 左上 - zero padding
-            data_out1 <= 0;  // 上中 - zero padding
-            data_out2 <= 0;  // 右上 - zero padding
-          end
-          else
-          begin
-            data_out0 <= (col == 1) ? 0 : line0[col-2];  // 左上
-            data_out1 <= line0[col-1];    // 上中
-            data_out2 <= (col == img_width) ? 0 : line0[col];  // 右上
-          end
-
-          // 第二行：中間行
-          if (row == 1 && col == 1)
-          begin
-            data_out3 <= 0;  // 左中 - zero padding
-            data_out4 <= line1[0];  // 中心 - 使用line1的第一個值
-            data_out5 <= line1[1];  // 右中 - 使用line1的第二個值（關鍵修正）
-          end
-          else
-          begin
-            data_out3 <= (col == 1) ? 0 : line1[col-2];  // 左中
-            data_out4 <= line1[col-1];    // 中心
-            data_out5 <= (col == img_width) ? 0 : line1[col];  // 右中
-          end
-
-          // 第三行：下方行
-          if (row == 1 && col == 1)
-          begin
-            data_out6 <= 0;  // 左下 - zero padding
-            data_out7 <= line2[0];  // 下中 - 使用line2的第一個值
-            data_out8 <= data_in;  // 右下 - 使用當前輸入值
-          end
-          else
-          begin
-            data_out6 <= (col == 1) ? 0 : line2[col-2];  // 左下
-            data_out7 <= line2[col-1];    // 下中
-            data_out8 <= data_in;  // 右下 - 使用當前輸入值
-          end
-
           valid_out <= 1;
-        end
 
-        // 更新座標
-        if (col == img_width-1)
-        begin
-          col <= 0;
-          row <= row + 1;
+          // 輸出3x3窗口，中心在(output_row, output_col)
+          data_out0 <= get_pixel(output_row - 1, output_col - 1); // 左上
+          data_out1 <= get_pixel(output_row - 1, output_col);     // 上中
+          data_out2 <= get_pixel(output_row - 1, output_col + 1); // 右上
+          data_out3 <= get_pixel(output_row, output_col - 1);     // 左中
+          data_out4 <= get_pixel(output_row, output_col);         // 中心
+          data_out5 <= get_pixel(output_row, output_col + 1);     // 右中
+          data_out6 <= get_pixel(output_row + 1, output_col - 1); // 左下
+          data_out7 <= get_pixel(output_row + 1, output_col);     // 下中
+          data_out8 <= get_pixel(output_row + 1, output_col + 1); // 右下
+
+          // 更新輸出位置
+          if (output_col == img_width - 1)
+          begin
+            output_col <= 0;
+            output_row <= output_row + 1;
+          end
+          else
+          begin
+            output_col <= output_col + 1;
+          end
+
         end
         else
         begin
-          col <= col + 1;
+          valid_out <= 0; // 所有窗口輸出完畢
         end
+      end
+
+      else
+      begin
+        valid_out <= 0;
       end
     end
   end
+
 endmodule
