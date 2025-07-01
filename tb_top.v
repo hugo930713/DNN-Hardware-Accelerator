@@ -61,7 +61,7 @@ module tb_top;
   // Pooling output dimension: Since feature_win_buf is hardcoded to no padding (2'b00), pooling output is POOL_INPUT_DIM - 2.
   localparam POOL_OUTPUT_DIM = POOL_INPUT_DIM - 2;
 
-  // 修正：根據window buffer的實際行為計算期望數量
+  // 根據window buffer的實際行為計算期望數量
   // Window buffer現在在row>=0 && col>=0時產生window，所以實際輸出是IMAGE_DIM*IMAGE_DIM
   localparam ACTUAL_WINDOW_DIM = IMAGE_DIM;  // 實際window輸出尺寸：8×8
   localparam ACTUAL_CONV_DIM = IMAGE_DIM;     // 實際卷積輸出尺寸：8×8
@@ -78,7 +78,6 @@ module tb_top;
   reg signed [7:0] image_int8 [0:IMAGE_DIM-1][0:IMAGE_DIM-1];
   // Matrix to store the *full* padded image (for display)
   integer padded_image_matrix [0:IMAGE_DIM+1][0:IMAGE_DIM+1]; // Max size for padding: IMAGE_DIM + 2 (for 1 pixel border on each side)
-
 
   // Calculate total expected output counts - 修正為實際數量
   wire [7:0] expected_window_count = ACTUAL_WINDOW_DIM * ACTUAL_WINDOW_DIM; // 實際window輸出數量
@@ -126,6 +125,7 @@ module tb_top;
       $display("  %4d %4d %4d", debug_win_out0, debug_win_out1, debug_win_out2);
       $display("  %4d %4d %4d", debug_win_out3, debug_win_out4, debug_win_out5);
       $display("  %4d %4d %4d", debug_win_out6, debug_win_out7, debug_win_out8);
+
       window_count = window_count + 1;
     end
   end
@@ -279,9 +279,11 @@ module tb_top;
     @(posedge clk);
     valid_in = 0;
 
-    $display("=== Pixel Input Complete, Waiting for Results ===");
+    // 多送足夠時脈，讓window buffer flush，確保所有結果都能推送出來
+    // 估算最大pipeline深度：2層window buffer + conv + relu + pool，保守給 20 個時脈
+    repeat(20) @(posedge clk);
 
-    // 修正的等待邏輯：使用超時機制而不是無限等待
+    $display("=== Pixel Input Complete, Waiting for Results ===");
     $display("Waiting for Padded Window results... (Expected %0d)", expected_window_count);
 
     // 等待所有結果，但設置合理的超時
