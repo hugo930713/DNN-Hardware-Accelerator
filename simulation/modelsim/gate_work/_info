@@ -10,23 +10,23 @@ z2
 cModel Technology
 Z0 dC:/Users/m_User/Desktop/DNN-Hardware-Accelerator/simulation/modelsim
 vhard_block
-Z1 !s110 1749719409
+Z1 !s110 1751398671
 !i10b 1
-!s100 UA>AS7ezn4Ez=49e[gaPj2
+!s100 MRB6zofP>XFTCI;2VB68Z1
 Z2 !s11b Dg1SIo80bB@j0V0VzS_@n1
-IQI0aWAKCAkSkah8n@ozae0
+IDD3S^NXVVlgPh2kKUg7FV0
 Z3 VDg1SIo80bB@j0V0VzS_@n1
 R0
-Z4 w1749719395
+Z4 w1751398659
 Z5 8week2.vo
 Z6 Fweek2.vo
 !i122 0
-L0 563842 45
+L0 576038 45
 Z7 OV;L;2020.1;71
 r1
 !s85 0
 31
-Z8 !s108 1749719406.000000
+Z8 !s108 1751398668.000000
 Z9 !s107 week2.vo|
 Z10 !s90 -reportprogress|300|-vlog01compat|-work|work|+incdir+.|week2.vo|
 !i113 1
@@ -36,21 +36,21 @@ Z13 tCvgOpt 0
 vtb_top
 R1
 !i10b 1
-!s100 a=MT4Y=d^JDBD=?TCI79F3
+!s100 P^io3lM2gS5U4e7fcb56m3
 R2
-I:[iE0mn2PoD1D8C>ZcVhG3
+IfZZ0i]Ql?b6h3:NTCYjl23
 R3
 R0
-w1749718052
+w1751395409
 8C:/Users/m_User/Desktop/DNN-Hardware-Accelerator/tb_top.v
 FC:/Users/m_User/Desktop/DNN-Hardware-Accelerator/tb_top.v
 !i122 1
-L0 3 380
+L0 3 382
 R7
 r1
 !s85 0
 31
-!s108 1749719409.000000
+!s108 1751398671.000000
 !s107 C:/Users/m_User/Desktop/DNN-Hardware-Accelerator/tb_top.v|
 !s90 -reportprogress|300|-vlog01compat|-work|work|+incdir+C:/Users/m_User/Desktop/DNN-Hardware-Accelerator|C:/Users/m_User/Desktop/DNN-Hardware-Accelerator/tb_top.v|
 !i113 1
@@ -60,16 +60,16 @@ R13
 vtop
 R1
 !i10b 1
-!s100 ]BL:oO3M^3EmmH9UK`TVR3
+!s100 oQ5`5i`Ndf0mkGIl;j7iM2
 R2
-IR9WfDni6LojS>O4UUDAn:2
+IWYD`GlEeH_G7[L_6AhV?F1
 R3
 R0
 R4
 R5
 R6
 !i122 0
-L0 32 563809
+L0 32 576005
 R7
 r1
 !s85 0
