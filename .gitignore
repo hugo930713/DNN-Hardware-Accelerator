@@ -1,63 +1,77 @@
-# 編譯/模擬產物
-*.o
-*.obj
-*.vcd
+# === FPGA/EDA 工具產物 ===
+output_files/
+db/
+incremental_db/
+work/
+simulation/modelsim/
+simulation/questa/
+
+# === 報告與暫存檔 ===
+*.rpt
+*.summary
+*.smsg
+*.done
+*.pin
+*.jdi
+*.jditmp
+*.sld
+*.sof
+*.pof
+*.map
+*.fit
+*.sta
+*.asm
+*.eda
+*.flow
+
+# === ModelSim/Questa/Quartus 產生檔 ===
 *.wlf
-*.log
-*.out
-*.vvp
-*.vdb
+*.vcd
+*.vpd
 *.sdf
+*.vdb
+*.vstf
+*.vst
+*.vmap
+*.vhw
+*.vho
+*.vo
+*.sft
 *.qdb
 *.qpg
 *.qtl
-*.sft
-*.vo
-*.vho
-*.rpt
-*.sdf
+*.xrf
+*.ini
+*.do.bak*
+*.do~
+*.log
+*.out
+
+# === 備份與暫存檔 ===
 *.bak
-*.svf
-*.fsdb
-*.vstf
-*.vst
-*.vmap
-*.vhw
-*.vcd
-*.vpd
-*.vstf
-*.vst
-*.vmap
-*.vhw
-*.vcd
-*.vpd
-
-# ModelSim/Questa/Quartus/ISE/其他 EDA 工具產生的資料夾
-simulation/modelsim/
-simulation/questa/
-incremental_db/
-db/
-work/
-output_files/
-
-# IDE/編輯器暫存檔
 *~
 *.swp
 *.swo
 *.tmp
-*.bak
 *.backup
-*.vscode/
-*.idea/
-*.DS_Store
 
-# Python/測試用
+# === IDE/編輯器相關 ===
+.vscode/
+.idea/
+.DS_Store
+
+# === Python/測試用 ===
 __pycache__/
 *.pyc
 
-# 其他
-*.log
-*.ini
-*.xrf
-*.do.bak*
-*.do~
+# === 其他自動產生或不需追蹤的資料夾 ===
+.qodo/
+
+# === 保留原始碼、腳本、設計文件 ===
+!*.v
+!*.sv
+!*.vh
+!*.py
+!*.md
+!*.txt
+!*.do
