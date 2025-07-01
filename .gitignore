@@ -40,6 +40,7 @@ simulation/questa/
 *.qdb
 *.qpg
 *.qtl
+*.qws
 *.xrf
 *.ini
 *.do.bak*
