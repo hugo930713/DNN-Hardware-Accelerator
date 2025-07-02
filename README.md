@@ -17,7 +17,6 @@
 - `top.v`：頂層整合模組
 - `tb_top.v`：頂層測試平台（Testbench）
 - `input_image.txt`：測試輸入影像資料
-- `verification_checklist.md`：驗證流程與檢查清單
 
 ## 目錄結構簡介
 
@@ -30,4 +29,3 @@
 
 1. 使用 ModelSim/Questa 開啟 `simulation/modelsim/` 或 `simulation/questa/` 目錄下的 `.do` 腳本。
 2. 執行 RTL 模擬，觀察波形與輸出結果。
-3. 輸出結果可與 Python 參考值比對，詳見 `verification_checklist.md`。
