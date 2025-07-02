@@ -17,10 +17,32 @@ module pooling (
     output reg valid_out
   );
 
-  reg signed [7:0] pool_array [0:8];
-  integer i;
+  // 使用純組合邏輯計算最大值
   reg signed [7:0] max_val;
 
+  // 組合邏輯計算最大值
+  always @(*)
+  begin
+    max_val = data_in0;
+    if (data_in1 > max_val)
+      max_val = data_in1;
+    if (data_in2 > max_val)
+      max_val = data_in2;
+    if (data_in3 > max_val)
+      max_val = data_in3;
+    if (data_in4 > max_val)
+      max_val = data_in4;
+    if (data_in5 > max_val)
+      max_val = data_in5;
+    if (data_in6 > max_val)
+      max_val = data_in6;
+    if (data_in7 > max_val)
+      max_val = data_in7;
+    if (data_in8 > max_val)
+      max_val = data_in8;
+  end
+
+  // 時序邏輯負責輸出暫存
   always @(posedge clk or negedge rst_n)
   begin
     if (!rst_n)
@@ -28,42 +50,17 @@ module pooling (
       max_out <= 0;
       valid_out <= 0;
     end
-    else if (valid_in)
-    begin
-      pool_array[0] <= data_in0;
-      pool_array[1] <= data_in1;
-      pool_array[2] <= data_in2;
-      pool_array[3] <= data_in3;
-      pool_array[4] <= data_in4;
-      pool_array[5] <= data_in5;
-      pool_array[6] <= data_in6;
-      pool_array[7] <= data_in7;
-      pool_array[8] <= data_in8;
-
-      max_val = data_in0;
-      if (data_in1 > max_val)
-        max_val = data_in1;
-      if (data_in2 > max_val)
-        max_val = data_in2;
-      if (data_in3 > max_val)
-        max_val = data_in3;
-      if (data_in4 > max_val)
-        max_val = data_in4;
-      if (data_in5 > max_val)
-        max_val = data_in5;
-      if (data_in6 > max_val)
-        max_val = data_in6;
-      if (data_in7 > max_val)
-        max_val = data_in7;
-      if (data_in8 > max_val)
-        max_val = data_in8;
-
-      max_out <= max_val;
-      valid_out <= 1;
-    end
     else
     begin
-      valid_out <= 0;
+      if (valid_in)
+      begin
+        max_out <= max_val;  // 使用組合邏輯計算的結果
+        valid_out <= 1;
+      end
+      else
+      begin
+        valid_out <= 0;
+      end
     end
   end
 
