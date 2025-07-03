@@ -1,4 +1,4 @@
-// window_buffer_3x3_2d_with_padding.v - 修正版本
+// window_buffer_3x3_2d_with_padding.v
 module window_buffer_3x3_2d_with_padding (
     input clk,
     input rst_n,
@@ -13,11 +13,11 @@ module window_buffer_3x3_2d_with_padding (
     output reg valid_out
   );
 
-  // 直接儲存整個影像然後逐個輸出窗口
+  // 直接儲存整張影像然後逐一輸出視窗
   parameter MAX_SIZE = 256;
   reg signed [7:0] image_mem [0:MAX_SIZE-1];
 
-  reg [15:0] input_count;          // 使用16位以支持更大圖像
+  reg [15:0] input_count;          // 使用16位元以支援更大影像
   reg [7:0] output_row, output_col;
   reg input_done;
   reg [15:0] total_pixels;         // 總像素數
@@ -26,7 +26,7 @@ module window_buffer_3x3_2d_with_padding (
 
   // 根據位置和padding取得像素值
   function signed [7:0] get_pixel;
-    input signed [8:0] row, col;    // 使用9位有符號數支持負數索引
+    input signed [8:0] row, col;    // 使用9位元有號數支援負數索引
     begin
       // 檢查邊界條件
       if (row < 0 || row >= img_height || col < 0 || col >= img_width)
@@ -38,7 +38,7 @@ module window_buffer_3x3_2d_with_padding (
             get_pixel = 0;     // zero padding
           2'b10:
           begin              // edge padding
-            // 邊緣填充：將越界座標夾制到有效範圍
+            // 邊緣填充：將超出範圍的座標限制在合法範圍內
             if (row < 0)
               row = 0;
             else if (row >= img_height)
@@ -55,7 +55,7 @@ module window_buffer_3x3_2d_with_padding (
       end
       else
       begin
-        // 正常像素訪問
+        // 正常像素存取
         get_pixel = image_mem[row * img_width + col];
       end
     end
@@ -102,18 +102,18 @@ module window_buffer_3x3_2d_with_padding (
         end
       end
 
-      // 第二階段：輸出3x3窗口
+      // 第二階段：輸出3x3視窗
       else if (input_done)
       begin
         // 根據padding_mode決定輸出範圍
         case (padding_mode)
           2'b00:
-          begin // no padding - 輸出範圍縮小
+          begin // 無補零 - 輸出範圍縮小
             if (output_row >= 1 && output_row < img_height - 1 &&
                 output_col >= 1 && output_col < img_width - 1)
             begin
               valid_out <= 1;
-              // 輸出3x3窗口，中心在(output_row, output_col)
+              // 輸出3x3視窗，中心在(output_row, output_col)
               data_out0 <= get_pixel(output_row - 1, output_col - 1);
               data_out1 <= get_pixel(output_row - 1, output_col);
               data_out2 <= get_pixel(output_row - 1, output_col + 1);
@@ -131,11 +131,11 @@ module window_buffer_3x3_2d_with_padding (
           end
 
           default:
-          begin // zero padding or edge padding - 輸出完整範圍
+          begin // 補零或邊緣延伸 - 輸出完整範圍
             if (output_row < img_height && output_col < img_width)
             begin
               valid_out <= 1;
-              // 輸出3x3窗口，中心在(output_row, output_col)
+              // 輸出3x3視窗，中心在(output_row, output_col)
               data_out0 <= get_pixel(output_row - 1, output_col - 1);
               data_out1 <= get_pixel(output_row - 1, output_col);
               data_out2 <= get_pixel(output_row - 1, output_col + 1);
