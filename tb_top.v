@@ -1,16 +1,14 @@
 `timescale 1ns/1ps
 
 module tb_top;
-  // Declare testbench input signals
   reg clk;
   reg rst_n;
   reg valid_in;
   reg signed [7:0] pixel_in;
   reg [7:0] img_width;
   reg [7:0] img_height;
-  reg [1:0] padding_mode; // Padding mode for DUT
+  reg [1:0] padding_mode;
 
-  // Declare DUT output signals
   wire signed [7:0] dout;
   wire valid_out;
   wire signed [15:0] conv_result;
@@ -18,7 +16,6 @@ module tb_top;
   wire valid_conv_out;
   wire valid_relu_out;
 
-  // Connect debug output ports from top.v
   wire signed [7:0] debug_win_out0;
   wire signed [7:0] debug_win_out1;
   wire signed [7:0] debug_win_out2;
@@ -28,61 +25,61 @@ module tb_top;
   wire signed [7:0] debug_win_out6;
   wire signed [7:0] debug_win_out7;
   wire signed [7:0] debug_win_out8;
-  wire valid_window_out; // Indicates valid output from window_buffer
+  wire valid_window_out; // window_buffer 有效輸出指示
 
-  // File operation variables
+  // 檔案操作
   integer f_out, f_in;
-  // Loop counters and local variables for initial block
+  // 迴圈計數器
   integer i, j;
-  integer current_row, current_col; // Moved from 'automatic' inside loop
-  integer original_r, original_c;   // Moved from 'automatic' inside loop
+  integer current_row, current_col; // 追蹤目前行列
+  integer original_r, original_c;   // 原始行列
 
   // Stage counters
   integer pixel_count = 0;
   integer conv_count = 0;
   integer relu_count = 0;
   integer pool_count = 0;
-  integer window_count = 0; // Padded window output count
+  integer window_count = 0; // Padded window 輸出計數
 
-  // Define input image dimensions
+  // 輸入影像尺寸
   parameter IMAGE_DIM = 8;
-  // Define padding mode for this test
-  // 00: no padding, 01: zero padding, 10: edge padding
-  parameter TEST_PADDING_MODE = 2'b01; // Example: Test zero padding
+  // 測試用 Padding 模式
+  // 00: 無 padding, 01: zero padding, 10: 邊界複製 padding
+  parameter TEST_PADDING_MODE = 2'b01; // 例：測試 zero padding
 
-  // Calculate expected output dimensions based on TEST_PADDING_MODE and top.v logic
-  // Convolution output dimensions (3x3 kernel, stride 1):
-  // If input window buffer mode is no padding (00), output dimension is IMAGE_DIM - 2.
-  // If input window buffer mode is zero/edge padding (01/10), output dimension is IMAGE_DIM.
+  // 根據 TEST_PADDING_MODE 與 top.v 邏輯計算期望輸出尺寸
+  // 卷積層輸出尺寸 (3x3 kernel, stride 1):
+  // 若無 padding (00)，則為 IMAGE_DIM - 2
+  // 若 zero padding (01)，則為 IMAGE_DIM
   localparam CONV_OUTPUT_DIM = (TEST_PADDING_MODE == 2'b00) ? (IMAGE_DIM - 2) : IMAGE_DIM;
 
-  // Pooling input dimension is the convolution output dimension (as calculated for feature_width/height in top.v)
+  // Pooling 輸入尺寸等於卷積輸出尺寸
   localparam POOL_INPUT_DIM = CONV_OUTPUT_DIM;
-  // Pooling output dimension: Since feature_win_buf is hardcoded to no padding (2'b00), pooling output is POOL_INPUT_DIM - 2.
+  // Pooling 輸出尺寸：feature_win_buf 固定無 padding (2'b00)，所以為 POOL_INPUT_DIM - 2
   localparam POOL_OUTPUT_DIM = POOL_INPUT_DIM - 2;
 
-  // 根據window buffer的實際行為計算期望數量
-  // Window buffer現在在row>=0 && col>=0時產生window，所以實際輸出是IMAGE_DIM*IMAGE_DIM
-  localparam ACTUAL_WINDOW_DIM = IMAGE_DIM;  // 實際window輸出尺寸：8×8
-  localparam ACTUAL_CONV_DIM = IMAGE_DIM;     // 實際卷積輸出尺寸：8×8
-  localparam ACTUAL_POOL_DIM = ACTUAL_CONV_DIM - 2; // 實際pooling輸出尺寸：6×6
+  // 根據 window buffer 實際行為計算期望數量
+  // window buffer 於 row>=0 && col>=0 時產生 window，實際輸出為 IMAGE_DIM*IMAGE_DIM
+  localparam ACTUAL_WINDOW_DIM = IMAGE_DIM;  // 實際 window 輸出尺寸：8×8
+  localparam ACTUAL_CONV_DIM = IMAGE_DIM;    // 實際卷積輸出尺寸：8×8
+  localparam ACTUAL_POOL_DIM = ACTUAL_CONV_DIM - 2; // 實際 pooling 輸出尺寸：6×6
 
-  // Matrices to store results (using actual output size)
+  // 儲存結果的矩陣 (使用實際輸出尺寸)
   integer conv_matrix [0:ACTUAL_CONV_DIM-1][0:ACTUAL_CONV_DIM-1];
   integer relu_matrix [0:ACTUAL_CONV_DIM-1][0:ACTUAL_CONV_DIM-1];
   integer pool_matrix [0:ACTUAL_POOL_DIM-1][0:ACTUAL_POOL_DIM-1];
 
-  // Matrix to store input image data (original values 0-255)
+  // 儲存輸入影像資料 (原始 0-255)
   reg [7:0] image_original [0:IMAGE_DIM-1][0:IMAGE_DIM-1];
-  // Matrix to store input image data (converted to INT8)
+  // 儲存轉換為 INT8 的影像資料
   reg signed [7:0] image_int8 [0:IMAGE_DIM-1][0:IMAGE_DIM-1];
-  // Matrix to store the *full* padded image (for display)
-  integer padded_image_matrix [0:IMAGE_DIM+1][0:IMAGE_DIM+1]; // Max size for padding: IMAGE_DIM + 2 (for 1 pixel border on each side)
+  // 儲存完整 padding 後影像 (僅顯示用)
+  integer padded_image_matrix [0:IMAGE_DIM+1][0:IMAGE_DIM+1]; // padding 最大尺寸：IMAGE_DIM+2
 
-  // Calculate total expected output counts - 修正為實際數量
-  wire [7:0] expected_window_count = ACTUAL_WINDOW_DIM * ACTUAL_WINDOW_DIM; // 實際window輸出數量
-  wire [7:0] expected_conv_count = ACTUAL_CONV_DIM * ACTUAL_CONV_DIM;       // 實際卷積輸出數量
-  wire [7:0] expected_pool_count = ACTUAL_POOL_DIM * ACTUAL_POOL_DIM;       // 實際pooling輸出數量
+  // 計算預期輸出數量 (修正為實際數量)
+  wire [7:0] expected_window_count = ACTUAL_WINDOW_DIM * ACTUAL_WINDOW_DIM; // window 輸出數量
+  wire [7:0] expected_conv_count = ACTUAL_CONV_DIM * ACTUAL_CONV_DIM;       // 卷積輸出數量
+  wire [7:0] expected_pool_count = ACTUAL_POOL_DIM * ACTUAL_POOL_DIM;       // pooling 輸出數量
 
   // DUT (Design Under Test) Instantiation
   top uut (
@@ -115,7 +112,7 @@ module tb_top;
   // Clock generator (10ns period = 100MHz)
   always #5 clk = ~clk;
 
-  // Monitor and display the Padded 3x3 Window
+  // 追蹤並顯示 Padding 後的 3x3 Window
   always @(posedge clk)
   begin
     if (valid_window_out && window_count < expected_window_count)
@@ -130,12 +127,12 @@ module tb_top;
     end
   end
 
-  // Monitor and store Convolution results
+  // 追蹤並儲存卷積結果
   always @(posedge clk)
   begin
     if (valid_conv_out && conv_count < expected_conv_count)
     begin
-      // Ensure index is not out of bounds
+      // 確保索引不超出範圍
       if (conv_count / ACTUAL_CONV_DIM < ACTUAL_CONV_DIM && conv_count % ACTUAL_CONV_DIM < ACTUAL_CONV_DIM)
       begin
         conv_matrix[conv_count / ACTUAL_CONV_DIM][conv_count % ACTUAL_CONV_DIM] = conv_result;
@@ -149,12 +146,12 @@ module tb_top;
     end
   end
 
-  // Monitor and store ReLU results
+  // 追蹤並儲存 ReLU 結果
   always @(posedge clk)
   begin
     if (valid_relu_out && relu_count < expected_conv_count)
     begin
-      // Ensure index is not out of bounds
+      // 確保索引不超出範圍
       if (relu_count / ACTUAL_CONV_DIM < ACTUAL_CONV_DIM && relu_count % ACTUAL_CONV_DIM < ACTUAL_CONV_DIM)
       begin
         relu_matrix[relu_count / ACTUAL_CONV_DIM][relu_count % ACTUAL_CONV_DIM] = relu_result;
@@ -168,12 +165,12 @@ module tb_top;
     end
   end
 
-  // Monitor and store Pooling results
+  // 追蹤並儲存 Pooling 結果
   always @(posedge clk)
   begin
     if (valid_out && pool_count < expected_pool_count)
     begin
-      // Ensure index is not out of bounds
+      // 確保索引不超出範圍
       if (pool_count / ACTUAL_POOL_DIM < ACTUAL_POOL_DIM && pool_count % ACTUAL_POOL_DIM < ACTUAL_POOL_DIM)
       begin
         pool_matrix[pool_count / ACTUAL_POOL_DIM][pool_count % ACTUAL_POOL_DIM] = dout;
@@ -189,22 +186,22 @@ module tb_top;
 
   initial
   begin
-    // Initialize input signals
+    // 初始化輸入訊號
     clk = 0;
     rst_n = 0;
     valid_in = 0;
     pixel_in = 0;
     img_width = IMAGE_DIM;
     img_height = IMAGE_DIM;
-    padding_mode = TEST_PADDING_MODE; // Set padding mode for this test
+    padding_mode = TEST_PADDING_MODE; // 設定本次測試的 Padding 模式
 
-    // Reset sequence
+    // Reset
     #20 rst_n = 1;
     $display("=== CNN Test Start (Padding Mode: %b) ===", TEST_PADDING_MODE);
     $display("Expected Outputs: Padded Window=%0dx%0d, Conv=%0dx%0d, Pool=%0dx%0d",
              ACTUAL_WINDOW_DIM, ACTUAL_WINDOW_DIM, ACTUAL_CONV_DIM, ACTUAL_CONV_DIM, ACTUAL_POOL_DIM, ACTUAL_POOL_DIM);
 
-    // Read input image data
+    // 讀取輸入影像資料
     f_in = $fopen("input_image.txt", "r");
     if (f_in == 0)
     begin
@@ -213,15 +210,15 @@ module tb_top;
     end
     else
     begin
-      // Read IMAGE_DIM x IMAGE_DIM image data from file
+      // 從檔案讀取 IMAGE_DIM x IMAGE_DIM 影像資料
       for (i = 0; i < IMAGE_DIM; i = i + 1)
       begin
         for (j = 0; j < IMAGE_DIM; j = j + 1)
         begin
           if (!$feof(f_in))
-          begin // Ensure not end of file
+          begin
             $fscanf(f_in, "%d", image_original[i][j]);
-            // Convert to signed INT8 immediately for display
+            // 轉換為有號數 INT8 以便顯示
             image_int8[i][j] = $signed(image_original[i][j]) - 8'sd128;
           end
           else
@@ -257,17 +254,17 @@ module tb_top;
       $display("");
     end
 
-    // Wait a few clock cycles for reset to propagate
+    // 等待 reset 穩定
     repeat(10) @(posedge clk);
 
-    // Input pixels sequentially - row-major order
+    // 依序輸入像素 (row-major)
     $display("\n=== Starting Pixel Input to DUT ===");
     for (i = 0; i < IMAGE_DIM; i = i + 1)
     begin
       for (j = 0; j < IMAGE_DIM; j = j + 1)
       begin
         @(posedge clk);
-        // Use the already converted INT8 value
+        // 使用已轉換的 INT8 值
         pixel_in = image_int8[i][j];
         valid_in = 1;
         pixel_count = pixel_count + 1;
@@ -275,19 +272,19 @@ module tb_top;
       end
     end
 
-    // After all pixels are input, deassert valid_in
+    // 所有像素輸入完畢後，關閉 valid_in
     @(posedge clk);
     valid_in = 0;
 
-    // 多送足夠時脈，讓window buffer flush，確保所有結果都能推送出來
-    // 估算最大pipeline深度：2層window buffer + conv + relu + pool，保守給 20 個時脈
+    // 多送足夠時脈，讓 window buffer flush，確保所有結果都能推送出來
+    // 估算最大 pipeline 深度：2 層 window buffer + conv + relu + pool，保守給 20 個時脈
     repeat(20) @(posedge clk);
 
     $display("=== Pixel Input Complete, Waiting for Results ===");
     $display("Waiting for Padded Window results... (Expected %0d)", expected_window_count);
 
-    // 等待所有結果，但設置合理的超時
-    repeat(1000) @(posedge clk);  // 等待1000個時鐘週期
+    // 等待所有結果，設置合理超時
+    repeat(1000) @(posedge clk);  // 最多等待 1000 個時鐘週期
 
     // 檢查結果
     $display("✅ Window Output Complete (%0d results)", window_count);
@@ -295,10 +292,10 @@ module tb_top;
     $display("✅ ReLU Complete (%0d results)", relu_count);
     $display("✅ Pooling Complete (%0d results)", pool_count);
 
-    // Extra clock cycles to ensure all signals stabilize and final messages are output
+    // 額外時脈，確保訊號穩定與訊息完整輸出
     repeat(20) @(posedge clk);
 
-    // --- Display and Write Final Matrices ---
+    // --- 顯示並寫入最終矩陣 ---
     $display("\n--- Final Convolution Results (%0dx%0d) ---", ACTUAL_CONV_DIM, ACTUAL_CONV_DIM);
     f_out = $fopen("output_image_tb.txt", "w"); // Open file for writing results
     if (f_out == 0)
@@ -361,7 +358,7 @@ module tb_top;
     if (conv_count == expected_conv_count &&
         relu_count == expected_conv_count &&
         pool_count == expected_pool_count &&
-        window_count == expected_window_count) // Check all counts
+        window_count == expected_window_count) // 檢查所有計數
     begin
       $display("✅ Simulation complete. All output counts match expectations. Results saved to output_image_tb.txt");
     end
@@ -370,10 +367,10 @@ module tb_top;
       $display("❌ Simulation complete, but output counts do not match expectations!");
     end
 
-    $finish; // Terminate simulation
+    $finish; // 結束模擬
   end
 
-  // Simulation timeout mechanism
+  // 模擬逾時機制
   initial
   begin
     #1000000; // 1 millisecond timeout
