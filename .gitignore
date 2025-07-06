@@ -3,32 +3,44 @@ output_files/
 db/
 incremental_db/
 work/
+rtl_work/
+.qodo/
+
+# === Simulation/ModelSim/Questa 資料夾 ===
 simulation/modelsim/
 simulation/questa/
+vsim/
 
-# === 報告與暫存檔 ===
-*.rpt
-*.summary
-*.smsg
-*.done
-*.pin
+# === Quartus/ModelSim/EDA 自動產生檔案 ===
+*.sof
+*.pof
 *.jdi
 *.jditmp
 *.sld
-*.sof
-*.pof
+*.pin
 *.map
 *.fit
 *.sta
 *.asm
 *.eda
 *.flow
-
-# === ModelSim/Questa/Quartus 產生檔 ===
-*.wlf
+*.summary
+*.smsg
+*.done
+*.rpt
+*.qdb
+*.qpg
+*.qtl
+*.qws
+*.xrf
+*.qdf
+*.mpf 
+*.mqf      
+*.mti       
+*.sdf
 *.vcd
 *.vpd
-*.sdf
+*.wlf
 *.vdb
 *.vstf
 *.vst
@@ -37,16 +49,12 @@ simulation/questa/
 *.vho
 *.vo
 *.sft
-*.qdb
-*.qpg
-*.qtl
-*.qws
-*.xrf
-*.ini
 *.do.bak*
 *.do~
 *.log
 *.out
+*.ini
+transcript
 
 # === 備份與暫存檔 ===
 *.bak
@@ -64,16 +72,17 @@ simulation/questa/
 # === Python/測試用 ===
 __pycache__/
 *.pyc
+*.json
 
 # === 其他自動產生或不需追蹤的資料夾 ===
-.qodo/
 txt/
 
 # === 保留原始碼、腳本、設計文件 ===
 !*.v
 !*.sv
 !*.vh
-!*.py
 !*.md
-!*.txt
 !*.do
+!*.qsf
+!*.qpf
+!*.txt
