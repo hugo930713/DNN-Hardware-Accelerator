@@ -73,7 +73,7 @@ module tb_top;
   integer pool_matrix [0:ACTUAL_POOL_DIM-1][0:ACTUAL_POOL_DIM-1];
 
   // Matrix to store input image data (original values 0-255)
-  reg signed [7:0] image_original [0:IMAGE_DIM-1][0:IMAGE_DIM-1];
+  reg [7:0] image_original [0:IMAGE_DIM-1][0:IMAGE_DIM-1];
   // Matrix to store input image data (converted to INT8)
   reg signed [7:0] image_int8 [0:IMAGE_DIM-1][0:IMAGE_DIM-1];
   // Matrix to store the *full* padded image (for display)
