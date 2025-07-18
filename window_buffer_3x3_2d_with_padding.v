@@ -24,12 +24,6 @@ module window_buffer_3x3_2d_with_padding (
 
   integer i;
 
-  wire is_padding_mode_active;
-  wire is_no_padding_mode_active;
-
-  assign is_padding_mode_active = (padding_mode == 2'b01 && output_row < img_height);
-  assign is_no_padding_mode_active = (padding_mode == 2'b00 && output_row < (img_height - 2));
-
   always @(posedge clk or negedge rst_n)
   begin
     if (!rst_n)
@@ -68,6 +62,7 @@ module window_buffer_3x3_2d_with_padding (
             line1[i] <= line2[i];
           end
         end
+
         // 寫入新資料
         line2[input_col] <= data_in;
 
@@ -81,26 +76,18 @@ module window_buffer_3x3_2d_with_padding (
         begin
           input_col <= input_col + 1;
         end
+
         total_inputs <= total_inputs + 1;
       end
-      else if (!input_finished && total_inputs == img_width * img_height) // B: 輸入剛結束的第一拍
+      else if (!input_finished && total_inputs == img_width * img_height)
       begin
-        input_finished <= 1; // 標記真實數據結束
-        // 執行最後一次真實數據的移位
+        // 手動補上最後一次關鍵的移位操作
         for (i = 0; i < MAX_WIDTH; i = i + 1)
         begin
           line0[i] <= line1[i];
           line1[i] <= line2[i];
         end
-      end
-      else if (input_finished)
-      begin
-        for (i = 0; i < MAX_WIDTH; i = i + 1)
-        begin
-          line0[i] <= line1[i];
-          line1[i] <= line2[i];
-          line2[i] <= 0; // 將 line2 清空，相同於移入一行 0
-        end
+        input_finished <= 1; // 將旗標設為 1，確保此動作只執行一次
       end
 
       // [Stage 2] 產生輸出 window
@@ -113,7 +100,7 @@ module window_buffer_3x3_2d_with_padding (
           // 計算當前應該輸出的 window 位置
           if (output_row < img_height && output_col < img_width)
           begin
-            // 產生 3x3 window (以 output_row, output_col 為中心)
+            // 生成 3x3 window (以 output_row, output_col 為中心)
             // 上排 (row-1)
             if (output_row == 0)
             begin
@@ -128,7 +115,7 @@ module window_buffer_3x3_2d_with_padding (
               data_out2 <= (output_col == img_width-1) ? 8'd0 : line0[output_col+1];
             end
 
-            // 中排 (row) - 使用 line1
+            // 中排 (row) - 始終使用 line1
             data_out3 <= (output_col == 0) ? 8'd0 : line1[output_col-1];
             data_out4 <= line1[output_col];
             data_out5 <= (output_col == img_width-1) ? 8'd0 : line1[output_col+1];
@@ -173,7 +160,7 @@ module window_buffer_3x3_2d_with_padding (
       begin
         // 啟動條件更嚴格：需等 line0, line1, line2 都可能填滿真實數據後才開始
         // 第一個輸出窗口中心是(1,1)，需要讀到(2,2)的像素，即 2*width+3 個像素
-        if (total_inputs >= (2 * img_width + 3)) // 修正: 至少需要 2 個完整行
+        if (total_inputs >= (2 * img_width + 3) || input_finished) // 至少需要 2 個完整行
         begin
           // 輸出維度比輸入維度小 2
           if (output_row < (img_height - 2) && output_col < (img_width - 2))
@@ -205,6 +192,17 @@ module window_buffer_3x3_2d_with_padding (
               output_col <= output_col + 1;
             end
           end
+        end
+
+        // 輸入結束後，補齊最後兩行的 window
+        if (!input_finished && total_inputs == img_width * img_height)
+        begin
+          for (i = 0; i < MAX_WIDTH; i = i + 1)
+          begin
+            line0[i] <= line1[i];
+            line1[i] <= line2[i];
+          end
+          input_finished <= 1;
         end
       end
     end
