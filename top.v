@@ -26,7 +26,18 @@ module top (
     output signed [7:0] debug_win_out6,
     output signed [7:0] debug_win_out7,
     output signed [7:0] debug_win_out8,
-    output valid_window_out
+    output valid_window_out,
+    // Pooling debug outputs
+    output signed [7:0] debug_pool_win0,
+    output signed [7:0] debug_pool_win1,
+    output signed [7:0] debug_pool_win2,
+    output signed [7:0] debug_pool_win3,
+    output signed [7:0] debug_pool_win4,
+    output signed [7:0] debug_pool_win5,
+    output signed [7:0] debug_pool_win6,
+    output signed [7:0] debug_pool_win7,
+    output signed [7:0] debug_pool_win8,
+    output valid_pool_window_out
   );
 
   // 第1級：帶padding的輸入window buffer
@@ -136,5 +147,17 @@ module top (
   assign debug_win_out7 = win_out7;
   assign debug_win_out8 = win_out8;
   assign valid_window_out = valid_window;
+
+  // Pooling debug outputs
+  assign debug_pool_win0 = pool_win0;
+  assign debug_pool_win1 = pool_win1;
+  assign debug_pool_win2 = pool_win2;
+  assign debug_pool_win3 = pool_win3;
+  assign debug_pool_win4 = pool_win4;
+  assign debug_pool_win5 = pool_win5;
+  assign debug_pool_win6 = pool_win6;
+  assign debug_pool_win7 = pool_win7;
+  assign debug_pool_win8 = pool_win8;
+  assign valid_pool_window_out = valid_pool_in;
 
 endmodule
