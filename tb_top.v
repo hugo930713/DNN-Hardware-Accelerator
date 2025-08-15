@@ -27,6 +27,18 @@ module tb_top;
   wire signed [7:0] debug_win_out8;
   wire valid_window_out; // window_buffer 有效輸出指示
 
+  // Pooling debug outputs
+  wire signed [7:0] debug_pool_win0;
+  wire signed [7:0] debug_pool_win1;
+  wire signed [7:0] debug_pool_win2;
+  wire signed [7:0] debug_pool_win3;
+  wire signed [7:0] debug_pool_win4;
+  wire signed [7:0] debug_pool_win5;
+  wire signed [7:0] debug_pool_win6;
+  wire signed [7:0] debug_pool_win7;
+  wire signed [7:0] debug_pool_win8;
+  wire valid_pool_window_out;
+
   // 檔案操作
   integer f_out, f_in;
   // 迴圈計數器
@@ -106,7 +118,17 @@ module tb_top;
         .debug_win_out6(debug_win_out6),
         .debug_win_out7(debug_win_out7),
         .debug_win_out8(debug_win_out8),
-        .valid_window_out(valid_window_out)
+        .valid_window_out(valid_window_out),
+        .debug_pool_win0(debug_pool_win0),
+        .debug_pool_win1(debug_pool_win1),
+        .debug_pool_win2(debug_pool_win2),
+        .debug_pool_win3(debug_pool_win3),
+        .debug_pool_win4(debug_pool_win4),
+        .debug_pool_win5(debug_pool_win5),
+        .debug_pool_win6(debug_pool_win6),
+        .debug_pool_win7(debug_pool_win7),
+        .debug_pool_win8(debug_pool_win8),
+        .valid_pool_window_out(valid_pool_window_out)
       );
 
   // Clock generator (10ns period = 100MHz)
@@ -117,11 +139,11 @@ module tb_top;
   begin
     if (valid_window_out && window_count < expected_window_count)
     begin
-      $display("\n--- Padded Window Output #%0d (Coord: %0d, %0d) ---", window_count + 1,
-               window_count / ACTUAL_WINDOW_DIM, window_count % ACTUAL_WINDOW_DIM);
-      $display("  %4d %4d %4d", debug_win_out0, debug_win_out1, debug_win_out2);
-      $display("  %4d %4d %4d", debug_win_out3, debug_win_out4, debug_win_out5);
-      $display("  %4d %4d %4d", debug_win_out6, debug_win_out7, debug_win_out8);
+      // $display("\n--- Padded Window Output #%0d (Coord: %0d, %0d) ---", window_count + 1,
+      //          window_count / ACTUAL_WINDOW_DIM, window_count % ACTUAL_WINDOW_DIM);
+      // $display("  %4d %4d %4d", debug_win_out0, debug_win_out1, debug_win_out2);
+      // $display("  %4d %4d %4d", debug_win_out3, debug_win_out4, debug_win_out5);
+      // $display("  %4d %4d %4d", debug_win_out6, debug_win_out7, debug_win_out8);
 
       window_count = window_count + 1;
     end
@@ -136,7 +158,7 @@ module tb_top;
       if (conv_count / ACTUAL_CONV_DIM < ACTUAL_CONV_DIM && conv_count % ACTUAL_CONV_DIM < ACTUAL_CONV_DIM)
       begin
         conv_matrix[conv_count / ACTUAL_CONV_DIM][conv_count % ACTUAL_CONV_DIM] = conv_result;
-        $display("Conv[%0d][%0d] = %0d (No.%0d)", conv_count / ACTUAL_CONV_DIM, conv_count % ACTUAL_CONV_DIM, conv_result, conv_count + 1);
+        // $display("Conv[%0d][%0d] = %0d (No.%0d)", conv_count / ACTUAL_CONV_DIM, conv_count % ACTUAL_CONV_DIM, conv_result, conv_count + 1);
         conv_count = conv_count + 1;
       end
       else
@@ -155,13 +177,28 @@ module tb_top;
       if (relu_count / ACTUAL_CONV_DIM < ACTUAL_CONV_DIM && relu_count % ACTUAL_CONV_DIM < ACTUAL_CONV_DIM)
       begin
         relu_matrix[relu_count / ACTUAL_CONV_DIM][relu_count % ACTUAL_CONV_DIM] = relu_result;
-        $display("ReLU[%0d][%0d] = %0d (No.%0d)", relu_count / ACTUAL_CONV_DIM, relu_count % ACTUAL_CONV_DIM, relu_result, relu_count + 1);
+        // $display("ReLU[%0d][%0d] = %0d (No.%0d)", relu_count / ACTUAL_CONV_DIM, relu_count % ACTUAL_CONV_DIM, relu_result, relu_count + 1);
         relu_count = relu_count + 1;
       end
       else
       begin
         $display("Error: relu_matrix index out of bounds! Count: %0d, Expected Dim: %0d", relu_count, ACTUAL_CONV_DIM);
       end
+    end
+  end
+
+  // 追蹤並顯示 Pooling 輸入的 3x3 視窗
+  integer pool_window_count = 0;
+  always @(posedge clk)
+  begin
+    if (valid_pool_window_out && pool_window_count < expected_pool_count)
+    begin
+      $display("\n--- Pooling Input Window #%0d (Coord: %0d, %0d) ---", pool_window_count + 1,
+               pool_window_count / ACTUAL_POOL_DIM, pool_window_count % ACTUAL_POOL_DIM);
+      $display("  %4d %4d %4d", debug_pool_win0, debug_pool_win1, debug_pool_win2);
+      $display("  %4d %4d %4d", debug_pool_win3, debug_pool_win4, debug_pool_win5);
+      $display("  %4d %4d %4d", debug_pool_win6, debug_pool_win7, debug_pool_win8);
+      pool_window_count = pool_window_count + 1;
     end
   end
 
@@ -174,7 +211,7 @@ module tb_top;
       if (pool_count / ACTUAL_POOL_DIM < ACTUAL_POOL_DIM && pool_count % ACTUAL_POOL_DIM < ACTUAL_POOL_DIM)
       begin
         pool_matrix[pool_count / ACTUAL_POOL_DIM][pool_count % ACTUAL_POOL_DIM] = dout;
-        $display("Pool[%0d][%0d] = %0d (No.%0d)", pool_count / ACTUAL_POOL_DIM, pool_count % ACTUAL_POOL_DIM, dout, pool_count + 1);
+        // $display("Pool[%0d][%0d] = %0d (No.%0d)", pool_count / ACTUAL_POOL_DIM, pool_count % ACTUAL_POOL_DIM, dout, pool_count + 1);
         pool_count = pool_count + 1;
       end
       else
@@ -268,7 +305,7 @@ module tb_top;
         pixel_in = image_int8[i][j];
         valid_in = 1;
         pixel_count = pixel_count + 1;
-        $display("Pixel[%0d][%0d] = %0d (Input Pixel #%0d)", i, j, pixel_in, pixel_count);
+        // $display("Pixel[%0d][%0d] = %0d (Input Pixel #%0d)", i, j, pixel_in, pixel_count);
       end
     end
 
