@@ -158,30 +158,65 @@ module window_buffer_3x3_2d_with_padding (
       // --- Case 2: No Padding Mode (for Pooling) ---
       else if (padding_mode == 2'b00)
       begin
-        // 啟動條件更嚴格：需等 line0, line1, line2 都可能填滿真實數據後才開始
-        // 第一個輸出窗口中心是(1,1)，需要讀到(2,2)的像素，即 2*width+3 個像素
-        if (total_inputs >= (2 * img_width + 3) || input_finished) // 至少需要 2 個完整行
+        // 兩種狀態：
+        // (A) 邊收邊出：只能輸出「已填好」的 window
+        // (B) 全部收完（input_finished）：直接把剩下的 window 倒完（drain）
+
+        // (A) streaming 條件：至少 3 行、且 window 的右下角不會碰到「當拍」才剛寫入的 col
+        if (!input_finished)
         begin
-          // 輸出維度比輸入維度小 2
+          if (input_row >= 2)
+          begin
+            // 只有當 (output_row <= input_row-2) 且 (output_col+2 < input_col) 才保證 line2 的資料已寫入可讀
+            if ( (output_row < (input_row - 2)) ||
+                 (output_row == (input_row - 2) && (output_col + 2) < input_col) )
+            begin
+
+              data_out0 <= line0[output_col    ];
+              data_out1 <= line0[output_col + 1];
+              data_out2 <= line0[output_col + 2];
+
+              data_out3 <= line1[output_col    ];
+              data_out4 <= line1[output_col + 1];
+              data_out5 <= line1[output_col + 2];
+
+              data_out6 <= line2[output_col    ];
+              data_out7 <= line2[output_col + 1];
+              data_out8 <= line2[output_col + 2];
+
+              valid_out <= 1;
+
+              if (output_col == (img_width - 3))
+              begin
+                output_col <= 0;
+                output_row <= output_row + 1;
+              end
+              else
+              begin
+                output_col <= output_col + 1;
+              end
+            end
+          end
+        end
+        // (B) drain：全圖已在 line* 中，按 (0,0)~ 掃到結束
+        else
+        begin
           if (output_row < (img_height - 2) && output_col < (img_width - 2))
           begin
-            // 直接從 line buffer 組成窗口，沒有任何 padding 判斷
-            // 索引修正：輸出座標(0,0)對應輸入窗口(0,1,2)列
-            data_out0 <= line0[output_col];
-            data_out1 <= line0[output_col+1];
-            data_out2 <= line0[output_col+2];
+            data_out0 <= line0[output_col    ];
+            data_out1 <= line0[output_col + 1];
+            data_out2 <= line0[output_col + 2];
 
-            data_out3 <= line1[output_col];
-            data_out4 <= line1[output_col+1];
-            data_out5 <= line1[output_col+2];
+            data_out3 <= line1[output_col    ];
+            data_out4 <= line1[output_col + 1];
+            data_out5 <= line1[output_col + 2];
 
-            data_out6 <= line2[output_col];
-            data_out7 <= line2[output_col+1];
-            data_out8 <= line2[output_col+2];
+            data_out6 <= line2[output_col    ];
+            data_out7 <= line2[output_col + 1];
+            data_out8 <= line2[output_col + 2];
 
             valid_out <= 1;
 
-            // 更新輸出座標，邊界為縮小後的維度
             if (output_col == (img_width - 3))
             begin
               output_col <= 0;
@@ -192,17 +227,6 @@ module window_buffer_3x3_2d_with_padding (
               output_col <= output_col + 1;
             end
           end
-        end
-
-        // 輸入結束後，補齊最後兩行的 window
-        if (!input_finished && total_inputs == img_width * img_height)
-        begin
-          for (i = 0; i < MAX_WIDTH; i = i + 1)
-          begin
-            line0[i] <= line1[i];
-            line1[i] <= line2[i];
-          end
-          input_finished <= 1;
         end
       end
     end
