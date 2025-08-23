@@ -4,8 +4,8 @@ module top (
     input rst_n,
     input valid_in,
     input signed [7:0] pixel_in,
-    input [7:0] img_width,     // 圖像寬度
-    input [7:0] img_height,    // 圖像高度
+    input [7:0] img_width,
+    input [7:0] img_height,
     input [1:0] padding_mode,  // 00: no padding, 01: zero padding, 10: edge padding
 
     output signed [7:0] dout,
