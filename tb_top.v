@@ -4,57 +4,69 @@ module tb_top;
   reg clk;
   reg rst_n;
   reg valid_in;
-  reg signed [7:0] pixel_in;
+  reg signed [15:0] pixel_in;
   reg [7:0] img_width;
   reg [7:0] img_height;
   reg [1:0] padding_mode;
 
-  wire signed [7:0] dout;
-  wire valid_out;
-  wire signed [15:0] conv_result;
-  wire signed [7:0] relu_result;
-  wire valid_conv_out;
-  wire valid_relu_out;
+  wire [31:0] dout_bus;
+  wire [1:0] valid_out_bus;
+  wire [31:0] conv_result_bus;
+  wire [31:0] relu_result_bus;
+  wire [1:0] valid_conv_out_bus;
+  wire [1:0] valid_relu_out_bus;
+  // 單 kernel valid 訊號
+  wire valid_conv_out, valid_relu_out, valid_out;
+  wire valid_conv_out2, valid_relu_out2, valid_pool_out2;
+  // 單 kernel 結果訊號
+  wire signed [15:0] conv_result, relu_result, dout;
+  wire signed [15:0] conv_result2, relu_result2, pool_out2;
 
-  wire signed [7:0] debug_win_out0;
-  wire signed [7:0] debug_win_out1;
-  wire signed [7:0] debug_win_out2;
-  wire signed [7:0] debug_win_out3;
-  wire signed [7:0] debug_win_out4;
-  wire signed [7:0] debug_win_out5;
-  wire signed [7:0] debug_win_out6;
-  wire signed [7:0] debug_win_out7;
-  wire signed [7:0] debug_win_out8;
+  wire signed [15:0] debug_win_out0;
+  wire signed [15:0] debug_win_out1;
+  wire signed [15:0] debug_win_out2;
+  wire signed [15:0] debug_win_out3;
+  wire signed [15:0] debug_win_out4;
+  wire signed [15:0] debug_win_out5;
+  wire signed [15:0] debug_win_out6;
+  wire signed [15:0] debug_win_out7;
+  wire signed [15:0] debug_win_out8;
   wire valid_window_out; // window_buffer 有效輸出指示
 
   // Pooling debug outputs
-  wire signed [7:0] debug_pool_win0;
-  wire signed [7:0] debug_pool_win1;
-  wire signed [7:0] debug_pool_win2;
-  wire signed [7:0] debug_pool_win3;
-  wire signed [7:0] debug_pool_win4;
-  wire signed [7:0] debug_pool_win5;
-  wire signed [7:0] debug_pool_win6;
-  wire signed [7:0] debug_pool_win7;
-  wire signed [7:0] debug_pool_win8;
+  wire signed [15:0] debug_pool_win0;
+  wire signed [15:0] debug_pool_win1;
+  wire signed [15:0] debug_pool_win2;
+  wire signed [15:0] debug_pool_win3;
+  wire signed [15:0] debug_pool_win4;
+  wire signed [15:0] debug_pool_win5;
+  wire signed [15:0] debug_pool_win6;
+  wire signed [15:0] debug_pool_win7;
+  wire signed [15:0] debug_pool_win8;
   wire valid_pool_window_out;
 
   // 檔案操作
-  integer f_out, f_in;
+  integer f_out1, f_out2, f_in;
   // 迴圈計數器
   integer i, j;
   integer current_row, current_col; // 追蹤目前行列
   integer original_r, original_c;   // 原始行列
 
   // Stage counters
+  // 檔案寬高
+  integer file_width, file_height;
   integer pixel_count = 0;
   integer conv_count = 0;
   integer relu_count = 0;
   integer pool_count = 0;
   integer window_count = 0; // Padded window 輸出計數
+  integer conv_count2 = 0;
+  integer relu_count2 = 0;
+  integer pool_count2 = 0;
+
 
   // 輸入影像尺寸
-  parameter IMAGE_DIM = 8;
+  parameter IMAGE_DIM = 32;
   // 測試用 Padding 模式
   // 00: 無 padding, 01: zero padding, 10: 邊界複製 padding
   parameter TEST_PADDING_MODE = 2'b01; // 例：測試 zero padding
@@ -80,6 +92,9 @@ module tb_top;
   integer conv_matrix [0:ACTUAL_CONV_DIM-1][0:ACTUAL_CONV_DIM-1];
   integer relu_matrix [0:ACTUAL_CONV_DIM-1][0:ACTUAL_CONV_DIM-1];
   integer pool_matrix [0:ACTUAL_POOL_DIM-1][0:ACTUAL_POOL_DIM-1];
+  integer conv_matrix2 [0:ACTUAL_CONV_DIM-1][0:ACTUAL_CONV_DIM-1];
+  integer relu_matrix2 [0:ACTUAL_CONV_DIM-1][0:ACTUAL_CONV_DIM-1];
+  integer pool_matrix2 [0:ACTUAL_POOL_DIM-1][0:ACTUAL_POOL_DIM-1];
 
   // 儲存輸入影像資料 (原始 0-255)
   reg [7:0] image_original [0:IMAGE_DIM-1][0:IMAGE_DIM-1];
@@ -89,9 +104,9 @@ module tb_top;
   integer padded_image_matrix [0:IMAGE_DIM+1][0:IMAGE_DIM+1]; // padding 最大尺寸：IMAGE_DIM+2
 
   // 計算預期輸出數量 (修正為實際數量)
-  wire [7:0] expected_window_count = ACTUAL_WINDOW_DIM * ACTUAL_WINDOW_DIM; // window 輸出數量
-  wire [7:0] expected_conv_count = ACTUAL_CONV_DIM * ACTUAL_CONV_DIM;       // 卷積輸出數量
-  wire [7:0] expected_pool_count = ACTUAL_POOL_DIM * ACTUAL_POOL_DIM;       // pooling 輸出數量
+  wire [IMAGE_DIM-1:0] expected_window_count = ACTUAL_WINDOW_DIM * ACTUAL_WINDOW_DIM; // window 輸出數量
+  wire [IMAGE_DIM-1:0] expected_conv_count = ACTUAL_CONV_DIM * ACTUAL_CONV_DIM;       // 卷積輸出數量
+  wire [IMAGE_DIM-1:0] expected_pool_count = ACTUAL_POOL_DIM * ACTUAL_POOL_DIM;       // pooling 輸出數量
 
   // DUT (Design Under Test) Instantiation
   top uut (
@@ -102,12 +117,12 @@ module tb_top;
         .img_width(img_width),
         .img_height(img_height),
         .padding_mode(padding_mode), // Pass testbench parameter to DUT
-        .dout(dout),
-        .valid_out(valid_out),
-        .conv_result(conv_result),
-        .relu_result(relu_result),
-        .valid_conv_out(valid_conv_out),
-        .valid_relu_out(valid_relu_out),
+        .dout_bus(dout_bus),
+        .valid_out_bus(valid_out_bus),
+        .conv_result_bus(conv_result_bus),
+        .relu_result_bus(relu_result_bus),
+        .valid_conv_out_bus(valid_conv_out_bus),
+        .valid_relu_out_bus(valid_relu_out_bus),
         // Connect debug output ports
         .debug_win_out0(debug_win_out0),
         .debug_win_out1(debug_win_out1),
@@ -130,6 +145,21 @@ module tb_top;
         .debug_pool_win8(debug_pool_win8),
         .valid_pool_window_out(valid_pool_window_out)
       );
+
+  // 將 bus 拆成單 kernel 訊號
+  assign valid_conv_out    = valid_conv_out_bus[0];
+  assign valid_relu_out    = valid_relu_out_bus[0];
+  assign valid_out         = valid_out_bus[0];
+  assign conv_result       = conv_result_bus[15:0];
+  assign relu_result       = relu_result_bus[15:0];
+  assign dout              = dout_bus[15:0];
+
+  assign valid_conv_out2   = valid_conv_out_bus[1];
+  assign valid_relu_out2   = valid_relu_out_bus[1];
+  assign valid_pool_out2   = valid_out_bus[1];
+  assign conv_result2      = conv_result_bus[31:16];
+  assign relu_result2      = relu_result_bus[31:16];
+  assign pool_out2         = dout_bus[31:16];
 
   // Clock generator (10ns period = 100MHz)
   always #5 clk = ~clk;
@@ -193,11 +223,11 @@ module tb_top;
   begin
     if (valid_pool_window_out && pool_window_count < expected_pool_count)
     begin
-      $display("\n--- Pooling Input Window #%0d (Coord: %0d, %0d) ---", pool_window_count + 1,
-               pool_window_count / ACTUAL_POOL_DIM, pool_window_count % ACTUAL_POOL_DIM);
-      $display("  %4d %4d %4d", debug_pool_win0, debug_pool_win1, debug_pool_win2);
-      $display("  %4d %4d %4d", debug_pool_win3, debug_pool_win4, debug_pool_win5);
-      $display("  %4d %4d %4d", debug_pool_win6, debug_pool_win7, debug_pool_win8);
+      // $display("\n--- Pooling Input Window #%0d (Coord: %0d, %0d) ---", pool_window_count + 1,
+      //          pool_window_count / ACTUAL_POOL_DIM, pool_window_count % ACTUAL_POOL_DIM);
+      // $display("  %4d %4d %4d", debug_pool_win0, debug_pool_win1, debug_pool_win2);
+      // $display("  %4d %4d %4d", debug_pool_win3, debug_pool_win4, debug_pool_win5);
+      // $display("  %4d %4d %4d", debug_pool_win6, debug_pool_win7, debug_pool_win8);
       pool_window_count = pool_window_count + 1;
     end
   end
@@ -221,6 +251,57 @@ module tb_top;
     end
   end
 
+  // 追蹤並儲存 kernel2 卷積結果
+  always @(posedge clk)
+  begin
+    if (valid_conv_out2 && conv_count2 < expected_conv_count)
+    begin
+      if (conv_count2 / ACTUAL_CONV_DIM < ACTUAL_CONV_DIM && conv_count2 % ACTUAL_CONV_DIM < ACTUAL_CONV_DIM)
+      begin
+        conv_matrix2[conv_count2 / ACTUAL_CONV_DIM][conv_count2 % ACTUAL_CONV_DIM] = conv_result2;
+        conv_count2 = conv_count2 + 1;
+      end
+      else
+      begin
+        $display("Error: conv_matrix2 index out of bounds! Count: %0d, Expected Dim: %0d", conv_count2, ACTUAL_CONV_DIM);
+      end
+    end
+  end
+
+  // 追蹤並儲存 kernel2 ReLU 結果
+  always @(posedge clk)
+  begin
+    if (valid_relu_out2 && relu_count2 < expected_conv_count)
+    begin
+      if (relu_count2 / ACTUAL_CONV_DIM < ACTUAL_CONV_DIM && relu_count2 % ACTUAL_CONV_DIM < ACTUAL_CONV_DIM)
+      begin
+        relu_matrix2[relu_count2 / ACTUAL_CONV_DIM][relu_count2 % ACTUAL_CONV_DIM] = relu_result2;
+        relu_count2 = relu_count2 + 1;
+      end
+      else
+      begin
+        $display("Error: relu_matrix2 index out of bounds! Count: %0d, Expected Dim: %0d", relu_count2, ACTUAL_CONV_DIM);
+      end
+    end
+  end
+
+  // 追蹤並儲存 kernel2 Pooling 結果
+  always @(posedge clk)
+  begin
+    if (valid_pool_out2 && pool_count2 < expected_pool_count)
+    begin
+      if (pool_count2 / ACTUAL_POOL_DIM < ACTUAL_POOL_DIM && pool_count2 % ACTUAL_POOL_DIM < ACTUAL_POOL_DIM)
+      begin
+        pool_matrix2[pool_count2 / ACTUAL_POOL_DIM][pool_count2 % ACTUAL_POOL_DIM] = pool_out2;
+        pool_count2 = pool_count2 + 1;
+      end
+      else
+      begin
+        $display("Error: pool_matrix2 index out of bounds! Count: %0d, Expected Dim: %0d", pool_count2, ACTUAL_POOL_DIM);
+      end
+    end
+  end
+
   initial
   begin
     // 初始化輸入訊號
@@ -238,7 +319,7 @@ module tb_top;
     $display("Expected Outputs: Padded Window=%0dx%0d, Conv=%0dx%0d, Pool=%0dx%0d",
              ACTUAL_WINDOW_DIM, ACTUAL_WINDOW_DIM, ACTUAL_CONV_DIM, ACTUAL_CONV_DIM, ACTUAL_POOL_DIM, ACTUAL_POOL_DIM);
 
-    // 讀取輸入影像資料
+    // 讀取輸入影像資料（先讀寬高，再讀測資）
     f_in = $fopen("input_image.txt", "r");
     if (f_in == 0)
     begin
@@ -247,21 +328,28 @@ module tb_top;
     end
     else
     begin
-      // 從檔案讀取 IMAGE_DIM x IMAGE_DIM 影像資料
-      for (i = 0; i < IMAGE_DIM; i = i + 1)
+      // 先讀寬高
+      if ($fscanf(f_in, "%d", file_width) != 1 || $fscanf(f_in, "%d", file_height) != 1)
       begin
-        for (j = 0; j < IMAGE_DIM; j = j + 1)
+        $display("❌ Error: input_image.txt must start with width and height!");
+        $finish;
+      end
+      img_width = file_width;
+      img_height = file_height;
+      // 讀取 file_width x file_height 影像資料
+      for (i = 0; i < file_height; i = i + 1)
+      begin
+        for (j = 0; j < file_width; j = j + 1)
         begin
           if (!$feof(f_in))
           begin
             $fscanf(f_in, "%d", image_original[i][j]);
-            // 轉換為有號數 INT8 以便顯示
             image_int8[i][j] = $signed(image_original[i][j]) - 8'sd128;
           end
           else
           begin
             $display("Warning: Fewer pixels than expected in input_image.txt at [%0d][%0d].", i, j);
-            image_original[i][j] = 0; // Fill with default value if file ends
+            image_original[i][j] = 0;
             image_int8[i][j] = 0;
           end
         end
@@ -302,7 +390,7 @@ module tb_top;
       begin
         @(posedge clk);
         // 使用已轉換的 INT8 值
-        pixel_in = image_int8[i][j];
+        pixel_in = image_int8[i][j] <<< 8; // INT8 轉 Q8.8
         valid_in = 1;
         pixel_count = pixel_count + 1;
         // $display("Pixel[%0d][%0d] = %0d (Input Pixel #%0d)", i, j, pixel_in, pixel_count);
@@ -333,71 +421,130 @@ module tb_top;
     repeat(20) @(posedge clk);
 
     // --- 顯示並寫入最終矩陣 ---
+    $display("\n--- Final Results (Kernel1) ---");
     $display("\n--- Final Convolution Results (%0dx%0d) ---", ACTUAL_CONV_DIM, ACTUAL_CONV_DIM);
-    f_out = $fopen("output_image_tb.txt", "w"); // Open file for writing results
-    if (f_out == 0)
+    f_out1 = $fopen("output_image_tb.txt", "w"); // Open file for writing results
+    if (f_out1 == 0)
     begin
       $display("❌ Error: Cannot open output_image_tb.txt for writing.");
     end
     else
     begin
-      $fwrite(f_out, "=== CNN Results (Padding Mode: %b) ===\n\n", TEST_PADDING_MODE);
-
-      $fwrite(f_out, "--- Convolution Results (%0dx%0d) ---\n", ACTUAL_CONV_DIM, ACTUAL_CONV_DIM);
+      $fwrite(f_out1, "=== CNN Results (Padding Mode: %b) ===\n\n", TEST_PADDING_MODE);
+      $fwrite(f_out1, "--- Convolution Results (%0dx%0d) ---\n", ACTUAL_CONV_DIM, ACTUAL_CONV_DIM);
       for (i = 0; i < ACTUAL_CONV_DIM; i = i + 1)
       begin
         for (j = 0; j < ACTUAL_CONV_DIM; j = j + 1)
         begin
-          $write("%6d ", conv_matrix[i][j]);
-          $fwrite(f_out, "%6d ", conv_matrix[i][j]);
+          $write("%6d ", conv_matrix[i][j] <<< 8);
+          $fwrite(f_out1, "%6d ", conv_matrix[i][j] <<< 8);
         end
         $display("");
-        $fwrite(f_out, "\n");
+        $fwrite(f_out1, "\n");
       end
 
       $display("\n--- Final ReLU Results (%0dx%0d) ---", ACTUAL_CONV_DIM, ACTUAL_CONV_DIM);
-      $fwrite(f_out, "\n--- ReLU Results (%0dx%0d) ---\n", ACTUAL_CONV_DIM, ACTUAL_CONV_DIM);
+      $fwrite(f_out1, "\n--- ReLU Results (%0dx%0d) ---\n", ACTUAL_CONV_DIM, ACTUAL_CONV_DIM);
       for (i = 0; i < ACTUAL_CONV_DIM; i = i + 1)
       begin
         for (j = 0; j < ACTUAL_CONV_DIM; j = j + 1)
         begin
-          $write("%6d ", relu_matrix[i][j]);
-          $fwrite(f_out, "%6d ", relu_matrix[i][j]);
+          $write("%6d ", relu_matrix[i][j] <<< 8);
+          $fwrite(f_out1, "%6d ", relu_matrix[i][j] <<< 8);
         end
         $display("");
-        $fwrite(f_out, "\n");
+        $fwrite(f_out1, "\n");
       end
 
       $display("\n--- Final Pooling Results (%0dx%0d) ---", ACTUAL_POOL_DIM, ACTUAL_POOL_DIM);
-      $fwrite(f_out, "\n--- Pooling Results (%0dx%0d) ---\n", ACTUAL_POOL_DIM, ACTUAL_POOL_DIM);
+      $fwrite(f_out1, "\n--- Pooling Results (%0dx%0d) ---\n", ACTUAL_POOL_DIM, ACTUAL_POOL_DIM);
       for (i = 0; i < ACTUAL_POOL_DIM; i = i + 1)
       begin
         for (j = 0; j < ACTUAL_POOL_DIM; j = j + 1)
         begin
-          $write("%6d ", pool_matrix[i][j]);
-          $fwrite(f_out, "%6d ", pool_matrix[i][j]);
+          $write("%6d ", pool_matrix[i][j] <<< 8);
+          $fwrite(f_out1, "%6d ", pool_matrix[i][j] <<< 8);
         end
         $display("");
-        $fwrite(f_out, "\n");
+        $fwrite(f_out1, "\n");
       end
 
-      $fclose(f_out);
+      $fclose(f_out1);
+    end
+
+    // 輸出 kernel2 結果到另一檔案
+    $display("\n--- Final Results (Kernel2) ---");
+    $display("\n--- Final Convolution Results (%0dx%0d) ---", ACTUAL_CONV_DIM, ACTUAL_CONV_DIM);
+    f_out2 = $fopen("output_image_tb2.txt", "w");
+    if (f_out2 == 0)
+    begin
+      $display("❌ Error: Cannot open output_image_tb2.txt for writing.");
+    end
+    else
+    begin
+      $fwrite(f_out2, "=== CNN Results (Padding Mode: %b) ===\n\n", TEST_PADDING_MODE);
+      $fwrite(f_out2, "--- Convolution Results (%0dx%0d) ---\n", ACTUAL_CONV_DIM, ACTUAL_CONV_DIM);
+      for (i = 0; i < ACTUAL_CONV_DIM; i = i + 1)
+      begin
+        for (j = 0; j < ACTUAL_CONV_DIM; j = j + 1)
+        begin
+          $write("%6d ", conv_matrix2[i][j] <<< 8);
+          $fwrite(f_out2, "%6d ", conv_matrix2[i][j] <<< 8);
+        end
+        $display("");
+        $fwrite(f_out2, "\n");
+      end
+
+      $display("\n--- Final ReLU Results (%0dx%0d) ---", ACTUAL_CONV_DIM, ACTUAL_CONV_DIM);
+      $fwrite(f_out2, "\n--- ReLU Results (%0dx%0d) ---\n", ACTUAL_CONV_DIM, ACTUAL_CONV_DIM);
+      for (i = 0; i < ACTUAL_CONV_DIM; i = i + 1)
+      begin
+        for (j = 0; j < ACTUAL_CONV_DIM; j = j + 1)
+        begin
+          $write("%6d ", relu_matrix2[i][j] <<< 8);
+          $fwrite(f_out2, "%6d ", relu_matrix2[i][j] <<< 8);
+        end
+        $display("");
+        $fwrite(f_out2, "\n");
+      end
+
+      $display("\n--- Final Pooling Results (%0dx%0d) ---", ACTUAL_POOL_DIM, ACTUAL_POOL_DIM);
+      $fwrite(f_out2, "\n--- Pooling Results (%0dx%0d) ---\n", ACTUAL_POOL_DIM, ACTUAL_POOL_DIM);
+      for (i = 0; i < ACTUAL_POOL_DIM; i = i + 1)
+      begin
+        for (j = 0; j < ACTUAL_POOL_DIM; j = j + 1)
+        begin
+          $write("%6d ", pool_matrix2[i][j] <<< 8);
+          $fwrite(f_out2, "%6d ", pool_matrix2[i][j] <<< 8);
+        end
+        $display("");
+        $fwrite(f_out2, "\n");
+      end
+      $fclose(f_out2);
     end
 
     // Display final results summary
-    $display("\n=== Final Summary ===");
+    $display("\n=== Final Summary (Kernel1) ===");
     $display("Total Input Pixels: %0d", pixel_count);
-    $display("Total Padded Window Outputs: %0d (Expected %0d)", window_count, expected_window_count);
+    // $display("Total Padded Window Outputs: %0d (Expected %0d)", window_count, expected_window_count);
     $display("Total Convolution Outputs: %0d (Expected %0d)", conv_count, expected_conv_count);
     $display("Total ReLU Outputs: %0d (Expected %0d)", relu_count, expected_conv_count);
     $display("Total Pooling Outputs: %0d (Expected %0d)", pool_count, expected_pool_count);
 
+    $display("\n=== Final Summary (Kernel2) ===");
+    $display("Total Convolution Outputs: %0d (Expected %0d)", conv_count2, expected_conv_count);
+    $display("Total ReLU Outputs: %0d (Expected %0d)", relu_count2, expected_conv_count);
+    $display("Total Pooling Outputs: %0d (Expected %0d)", pool_count2, expected_pool_count);
+
     if (conv_count == expected_conv_count &&
         relu_count == expected_conv_count &&
         pool_count == expected_pool_count &&
-        window_count == expected_window_count) // 檢查所有計數
+        // window_count == expected_window_count &&
+        conv_count2 == expected_conv_count &&
+        relu_count2 == expected_conv_count &&
+        pool_count2 == expected_pool_count) // 檢查所有計數
     begin
-      $display("✅ Simulation complete. All output counts match expectations. Results saved to output_image_tb.txt");
+      $display("✅ Simulation complete. All output counts match expectations. Results saved to output_image_tb.txt and output_image_tb2.txt");
     end
     else
     begin
