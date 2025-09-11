@@ -2,24 +2,24 @@ module window_buffer_3x3_2d_with_padding (
     input clk,
     input rst_n,
     input valid_in,
-    input signed [7:0] data_in,
+    input signed [15:0] data_in,
     input [7:0] img_width,
     input [7:0] img_height,
     input [1:0] padding_mode, // 00: no padding, 01: zero padding
 
-    output reg signed [7:0] data_out0, data_out1, data_out2,
-    output reg signed [7:0] data_out3, data_out4, data_out5,
-    output reg signed [7:0] data_out6, data_out7, data_out8,
+    output reg signed [15:0] data_out0, data_out1, data_out2,
+    data_out3, data_out4, data_out5,
+    data_out6, data_out7, data_out8,
     output reg valid_out
   );
   parameter MAX_WIDTH = 256;
 
-  reg signed [7:0] line0[0:MAX_WIDTH-1];
-  reg signed [7:0] line1[0:MAX_WIDTH-1];
-  reg signed [7:0] line2[0:MAX_WIDTH-1];
+  reg signed [15:0] line0 [0:MAX_WIDTH-1];
+  reg signed [15:0] line1 [0:MAX_WIDTH-1];
+  reg signed [15:0] line2 [0:MAX_WIDTH-1];
   reg [7:0] input_col, input_row;     // 輸入像素的座標
   reg [7:0] output_col, output_row;   // 輸出 window 的座標
-  reg [7:0] total_inputs;             // 總輸入計數器
+  reg [MAX_WIDTH:0] total_inputs;             // 總輸入計數器
   reg input_finished;                 // 輸入完成旗標
 
   integer i;
