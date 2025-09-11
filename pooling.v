@@ -3,25 +3,23 @@ module pooling (
     input clk,
     input rst_n,
     input valid_in,
-    input signed [7:0] data_in0,
-    input signed [7:0] data_in1,
-    input signed [7:0] data_in2,
-    input signed [7:0] data_in3,
-    input signed [7:0] data_in4,
-    input signed [7:0] data_in5,
-    input signed [7:0] data_in6,
-    input signed [7:0] data_in7,
-    input signed [7:0] data_in8,
+    input signed [15:0] data_in0,
+    input signed [15:0] data_in1,
+    input signed [15:0] data_in2,
+    input signed [15:0] data_in3,
+    input signed [15:0] data_in4,
+    input signed [15:0] data_in5,
+    input signed [15:0] data_in6,
+    input signed [15:0] data_in7,
+    input signed [15:0] data_in8,
 
-    output reg signed [7:0] max_out,
+    output reg signed [15:0] max_out,
     output reg valid_out
   );
 
   // 使用純組合邏輯計算最大值
-  reg signed [7:0] max_val;
-
-  // 組合邏輯計算最大值
-  always @(*)
+  reg signed [15:0] max_val;
+  always @*
   begin
     max_val = data_in0;
     if (data_in1 > max_val)
