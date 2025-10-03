@@ -18,26 +18,26 @@ module top (
     output [1:0] valid_relu_out_bus,
 
     // padding 後的 3x3 視窗輸出
-    output signed [15:0] debug_win_out0,
-    output signed [15:0] debug_win_out1,
-    output signed [15:0] debug_win_out2,
-    output signed [15:0] debug_win_out3,
-    output signed [15:0] debug_win_out4,
-    output signed [15:0] debug_win_out5,
-    output signed [15:0] debug_win_out6,
-    output signed [15:0] debug_win_out7,
-    output signed [15:0] debug_win_out8,
+    // output signed [15:0] debug_win_out0,
+    // output signed [15:0] debug_win_out1,
+    // output signed [15:0] debug_win_out2,
+    // output signed [15:0] debug_win_out3,
+    // output signed [15:0] debug_win_out4,
+    // output signed [15:0] debug_win_out5,
+    // output signed [15:0] debug_win_out6,
+    // output signed [15:0] debug_win_out7,
+    // output signed [15:0] debug_win_out8,
     output valid_window_out,
     // Pooling debug outputs
-    output signed [15:0] debug_pool_win0,
-    output signed [15:0] debug_pool_win1,
-    output signed [15:0] debug_pool_win2,
-    output signed [15:0] debug_pool_win3,
-    output signed [15:0] debug_pool_win4,
-    output signed [15:0] debug_pool_win5,
-    output signed [15:0] debug_pool_win6,
-    output signed [15:0] debug_pool_win7,
-    output signed [15:0] debug_pool_win8,
+    // output signed [15:0] debug_pool_win0,
+    // output signed [15:0] debug_pool_win1,
+    // output signed [15:0] debug_pool_win2,
+    // output signed [15:0] debug_pool_win3,
+    // output signed [15:0] debug_pool_win4,
+    // output signed [15:0] debug_pool_win5,
+    // output signed [15:0] debug_pool_win6,
+    // output signed [15:0] debug_pool_win7,
+    // output signed [15:0] debug_pool_win8,
     output valid_pool_window_out
   );
 
@@ -187,21 +187,31 @@ module top (
   assign dout_bus = {pool_out2, pool_out1};
   assign valid_out_bus = {valid_pool_out2, valid_pool_out1};
 
+  assign valid_window_out = valid_window;
+
   assign valid_conv_out_bus = {valid_conv_out2, valid_conv_out1};
   assign valid_relu_out_bus = {valid_relu_out2, valid_relu_out1};
 
-  // Pooling debug outputs (kernel1)
-  assign debug_pool_win0 = feature_win1_0;
-  assign debug_pool_win1 = feature_win1_1;
-  assign debug_pool_win2 = feature_win1_2;
-  assign debug_pool_win3 = feature_win1_3;
-  assign debug_pool_win4 = feature_win1_4;
-  assign debug_pool_win5 = feature_win1_5;
-  assign debug_pool_win6 = feature_win1_6;
-  assign debug_pool_win7 = feature_win1_7;
-  assign debug_pool_win8 = feature_win1_8;
-  assign valid_pool_window_out = valid_feature_win1;
+  // assign debug_win_out0 = win_out0;
+  // assign debug_win_out1 = win_out1;
+  // assign debug_win_out2 = win_out2;
+  // assign debug_win_out3 = win_out3;
+  // assign debug_win_out4 = win_out4;
+  // assign debug_win_out5 = win_out5;
+  // assign debug_win_out6 = win_out6;
+  // assign debug_win_out7 = win_out7;
+  // assign debug_win_out8 = win_out8;
 
-  // 若要 debug kernel2，請再加一組 debug port
+  // // Pooling debug outputs (kernel1)
+  // assign debug_pool_win0 = feature_win1_0;
+  // assign debug_pool_win1 = feature_win1_1;
+  // assign debug_pool_win2 = feature_win1_2;
+  // assign debug_pool_win3 = feature_win1_3;
+  // assign debug_pool_win4 = feature_win1_4;
+  // assign debug_pool_win5 = feature_win1_5;
+  // assign debug_pool_win6 = feature_win1_6;
+  // assign debug_pool_win7 = feature_win1_7;
+  // assign debug_pool_win8 = feature_win1_8;
+  // assign valid_pool_window_out = valid_feature_win1;
 
 endmodule
