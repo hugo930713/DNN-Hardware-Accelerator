@@ -1,3 +1,4 @@
+set_global_assignment -name FITTER_EFFORT "AUTO FIT"
 # -------------------------------------------------------------------------- #
 #
 # Copyright (C) 2020  Intel Corporation. All rights reserved.
@@ -76,7 +77,6 @@
 # -------------------------------------------------------------------------- #
 
 
-set_global_assignment -name FAMILY "MAX 10"
 set_global_assignment -name DEVICE 5CEFA9F31C7
 set_global_assignment -name FAMILY "Cyclone V"
 set_global_assignment -name TOP_LEVEL_ENTITY top
@@ -106,11 +106,12 @@ set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_RO
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_global_assignment -name EDA_TEST_BENCH_FILE tb_top.v -section_id tb_top
 set_global_assignment -name EDA_RUN_TOOL_AUTOMATICALLY ON -section_id eda_simulation
+set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS ON
+set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
+set_global_assignment -name SDC_FILE constraints.sdc
 set_global_assignment -name VERILOG_FILE window_buffer_3x3_2d_with_padding.v
 set_global_assignment -name VERILOG_FILE conv_3x3.v
 set_global_assignment -name VERILOG_FILE top.v
 set_global_assignment -name VERILOG_FILE relu.v
 set_global_assignment -name VERILOG_FILE pooling.v
-set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS ON
-set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
