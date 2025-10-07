@@ -1,4 +1,4 @@
-# DNN-Hardware-Accelerator
+# DNN-Hardware-Accelerator (no pipeline)
 
 本專案為一個基於 FPGA/RTL 的深度神經網路（DNN）硬體加速器設計，實作基本的卷積、ReLU 及 Pooling 運算單元，並提供完整的模擬與驗證流程。
 
