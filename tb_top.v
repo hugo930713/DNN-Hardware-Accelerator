@@ -22,27 +22,27 @@ module tb_top;
   wire signed [15:0] conv_result, relu_result, dout;
   wire signed [15:0] conv_result2, relu_result2, pool_out2;
 
-  wire signed [15:0] debug_win_out0;
-  wire signed [15:0] debug_win_out1;
-  wire signed [15:0] debug_win_out2;
-  wire signed [15:0] debug_win_out3;
-  wire signed [15:0] debug_win_out4;
-  wire signed [15:0] debug_win_out5;
-  wire signed [15:0] debug_win_out6;
-  wire signed [15:0] debug_win_out7;
-  wire signed [15:0] debug_win_out8;
+  // wire signed [15:0] debug_win_out0;
+  // wire signed [15:0] debug_win_out1;
+  // wire signed [15:0] debug_win_out2;
+  // wire signed [15:0] debug_win_out3;
+  // wire signed [15:0] debug_win_out4;
+  // wire signed [15:0] debug_win_out5;
+  // wire signed [15:0] debug_win_out6;
+  // wire signed [15:0] debug_win_out7;
+  // wire signed [15:0] debug_win_out8;
   wire valid_window_out; // window_buffer 有效輸出指示
 
   // Pooling debug outputs
-  wire signed [15:0] debug_pool_win0;
-  wire signed [15:0] debug_pool_win1;
-  wire signed [15:0] debug_pool_win2;
-  wire signed [15:0] debug_pool_win3;
-  wire signed [15:0] debug_pool_win4;
-  wire signed [15:0] debug_pool_win5;
-  wire signed [15:0] debug_pool_win6;
-  wire signed [15:0] debug_pool_win7;
-  wire signed [15:0] debug_pool_win8;
+  // wire signed [15:0] debug_pool_win0;
+  // wire signed [15:0] debug_pool_win1;
+  // wire signed [15:0] debug_pool_win2;
+  // wire signed [15:0] debug_pool_win3;
+  // wire signed [15:0] debug_pool_win4;
+  // wire signed [15:0] debug_pool_win5;
+  // wire signed [15:0] debug_pool_win6;
+  // wire signed [15:0] debug_pool_win7;
+  // wire signed [15:0] debug_pool_win8;
   wire valid_pool_window_out;
 
   // 檔案操作
@@ -124,25 +124,25 @@ module tb_top;
         .valid_conv_out_bus(valid_conv_out_bus),
         .valid_relu_out_bus(valid_relu_out_bus),
         // Connect debug output ports
-        .debug_win_out0(debug_win_out0),
-        .debug_win_out1(debug_win_out1),
-        .debug_win_out2(debug_win_out2),
-        .debug_win_out3(debug_win_out3),
-        .debug_win_out4(debug_win_out4),
-        .debug_win_out5(debug_win_out5),
-        .debug_win_out6(debug_win_out6),
-        .debug_win_out7(debug_win_out7),
-        .debug_win_out8(debug_win_out8),
+        // .debug_win_out0(debug_win_out0),
+        // .debug_win_out1(debug_win_out1),
+        // .debug_win_out2(debug_win_out2),
+        // .debug_win_out3(debug_win_out3),
+        // .debug_win_out4(debug_win_out4),
+        // .debug_win_out5(debug_win_out5),
+        // .debug_win_out6(debug_win_out6),
+        // .debug_win_out7(debug_win_out7),
+        // .debug_win_out8(debug_win_out8),
         .valid_window_out(valid_window_out),
-        .debug_pool_win0(debug_pool_win0),
-        .debug_pool_win1(debug_pool_win1),
-        .debug_pool_win2(debug_pool_win2),
-        .debug_pool_win3(debug_pool_win3),
-        .debug_pool_win4(debug_pool_win4),
-        .debug_pool_win5(debug_pool_win5),
-        .debug_pool_win6(debug_pool_win6),
-        .debug_pool_win7(debug_pool_win7),
-        .debug_pool_win8(debug_pool_win8),
+        // .debug_pool_win0(debug_pool_win0),
+        // .debug_pool_win1(debug_pool_win1),
+        // .debug_pool_win2(debug_pool_win2),
+        // .debug_pool_win3(debug_pool_win3),
+        // .debug_pool_win4(debug_pool_win4),
+        // .debug_pool_win5(debug_pool_win5),
+        // .debug_pool_win6(debug_pool_win6),
+        // .debug_pool_win7(debug_pool_win7),
+        // .debug_pool_win8(debug_pool_win8),
         .valid_pool_window_out(valid_pool_window_out)
       );
 
@@ -402,8 +402,8 @@ module tb_top;
     valid_in = 0;
 
     // 多送足夠時脈，讓 window buffer flush，確保所有結果都能推送出來
-    // 估算最大 pipeline 深度：2 層 window buffer + conv + relu + pool，保守給 20 個時脈
-    repeat(20) @(posedge clk);
+    // 估算最大 pipeline 深度：2 層 window buffer + conv + relu + pool，保守給 30 個時脈
+    repeat(30) @(posedge clk);
 
     $display("=== Pixel Input Complete, Waiting for Results ===");
     $display("Waiting for Padded Window results... (Expected %0d)", expected_window_count);
