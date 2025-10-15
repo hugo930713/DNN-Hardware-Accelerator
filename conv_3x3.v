@@ -28,87 +28,132 @@ module conv_3x3(
     output reg valid_out
   );
 
-  reg signed [31:0] mul_res[0:8];
-  reg valid_in_d1;
+  // Stage 1: Input register
+  reg signed [15:0] data_in0_q, data_in1_q, data_in2_q;
+  reg signed [15:0] data_in3_q, data_in4_q, data_in5_q;
+  reg signed [15:0] data_in6_q, data_in7_q, data_in8_q;
+  reg signed [15:0] weight0_q, weight1_q, weight2_q;
+  reg signed [15:0] weight3_q, weight4_q, weight5_q;
+  reg signed [15:0] weight6_q, weight7_q, weight8_q;
+  reg valid_in_q1;
 
-  reg signed [31:0] add_stage1 [0:3];
-  reg signed [31:0] last_mul_res;
-  reg valid_in_d2;
+  // Stage 2: Multiplier output
+  reg signed [31:0] mult0, mult1, mult2;
+  reg signed [31:0] mult3, mult4, mult5;
+  reg signed [31:0] mult6, mult7, mult8;
+  reg valid_in_q2;
 
-  wire signed [32:0] final_sum;
+  // Stage 3: Accumulator
+  reg signed [31:0] mult_sum;
+  reg valid_in_q3;
 
-  integer i;
-
-  // --- Pipeline Stage 1: 乘法 ---
+  // Stage 1: Register inputs and weights
   always @(posedge clk or negedge rst_n)
   begin
     if (!rst_n)
     begin
-      valid_in_d1 <= 1'b0;
+      data_in0_q <= 0;
+      data_in1_q <= 0;
+      data_in2_q <= 0;
+      data_in3_q <= 0;
+      data_in4_q <= 0;
+      data_in5_q <= 0;
+      data_in6_q <= 0;
+      data_in7_q <= 0;
+      data_in8_q <= 0;
+      weight0_q <= 0;
+      weight1_q <= 0;
+      weight2_q <= 0;
+      weight3_q <= 0;
+      weight4_q <= 0;
+      weight5_q <= 0;
+      weight6_q <= 0;
+      weight7_q <= 0;
+      weight8_q <= 0;
+      valid_in_q1 <= 0;
     end
     else
     begin
-      if (valid_in)
-      begin
-        mul_res[0] <= $signed(data_in0) * $signed(weight0);
-        mul_res[1] <= $signed(data_in1) * $signed(weight1);
-        mul_res[2] <= $signed(data_in2) * $signed(weight2);
-        mul_res[3] <= $signed(data_in3) * $signed(weight3);
-        mul_res[4] <= $signed(data_in4) * $signed(weight4);
-        mul_res[5] <= $signed(data_in5) * $signed(weight5);
-        mul_res[6] <= $signed(data_in6) * $signed(weight6);
-        mul_res[7] <= $signed(data_in7) * $signed(weight7);
-        mul_res[8] <= $signed(data_in8) * $signed(weight8);
-      end
-      valid_in_d1 <= valid_in;
+      data_in0_q <= data_in0;
+      data_in1_q <= data_in1;
+      data_in2_q <= data_in2;
+      data_in3_q <= data_in3;
+      data_in4_q <= data_in4;
+      data_in5_q <= data_in5;
+      data_in6_q <= data_in6;
+      data_in7_q <= data_in7;
+      data_in8_q <= data_in8;
+      weight0_q <= weight0;
+      weight1_q <= weight1;
+      weight2_q <= weight2;
+      weight3_q <= weight3;
+      weight4_q <= weight4;
+      weight5_q <= weight5;
+      weight6_q <= weight6;
+      weight7_q <= weight7;
+      weight8_q <= weight8;
+      valid_in_q1 <= valid_in;
     end
   end
 
-  // --- Pipeline Stage 2: 加法樹第一層 ---
+  // Stage 2: Multiply
   always @(posedge clk or negedge rst_n)
   begin
     if (!rst_n)
     begin
-      valid_in_d2 <= 1'b0;
-      // 重置暫存器
-      last_mul_res <= 32'd0;
-      for (i = 0; i < 4; i = i + 1)
-      begin
-        add_stage1[i] <= 32'd0;
-      end
+      mult0 <= 0;
+      mult1 <= 0;
+      mult2 <= 0;
+      mult3 <= 0;
+      mult4 <= 0;
+      mult5 <= 0;
+      mult6 <= 0;
+      mult7 <= 0;
+      mult8 <= 0;
+      valid_in_q2 <= 0;
     end
     else
     begin
-      if (valid_in_d1)
-      begin
-        add_stage1[0] <= mul_res[0] + mul_res[1];
-        add_stage1[1] <= mul_res[2] + mul_res[3];
-        add_stage1[2] <= mul_res[4] + mul_res[5];
-        add_stage1[3] <= mul_res[6] + mul_res[7];
-        last_mul_res  <= mul_res[8];
-      end
-      valid_in_d2 <= valid_in_d1;
+      mult0 <= $signed(data_in0_q) * $signed(weight0_q);
+      mult1 <= $signed(data_in1_q) * $signed(weight1_q);
+      mult2 <= $signed(data_in2_q) * $signed(weight2_q);
+      mult3 <= $signed(data_in3_q) * $signed(weight3_q);
+      mult4 <= $signed(data_in4_q) * $signed(weight4_q);
+      mult5 <= $signed(data_in5_q) * $signed(weight5_q);
+      mult6 <= $signed(data_in6_q) * $signed(weight6_q);
+      mult7 <= $signed(data_in7_q) * $signed(weight7_q);
+      mult8 <= $signed(data_in8_q) * $signed(weight8_q);
+      valid_in_q2 <= valid_in_q1;
     end
   end
 
-  // --- 組合邏輯: 計算最終總和 ---
-  assign final_sum = (add_stage1[0] + add_stage1[1]) + (add_stage1[2] + add_stage1[3]) + last_mul_res;
-
-  // --- Pipeline Stage 3: 輸出暫存器 ---
+  // Stage 3: Accumulate
   always @(posedge clk or negedge rst_n)
   begin
     if (!rst_n)
     begin
-      data_out  <= 16'd0;
-      valid_out <= 1'b0;
+      mult_sum <= 0;
+      valid_in_q3 <= 0;
     end
     else
     begin
-      valid_out <= valid_in_d2;
-      if (valid_in_d2)
-      begin
-        data_out  <= $signed(final_sum) >>> 8;
-      end
+      mult_sum <= mult0 + mult1 + mult2 + mult3 + mult4 + mult5 + mult6 + mult7 + mult8;
+      valid_in_q3 <= valid_in_q2;
+    end
+  end
+
+  // Stage 4: Output
+  always @(posedge clk or negedge rst_n)
+  begin
+    if (!rst_n)
+    begin
+      data_out <= 0;
+      valid_out <= 0;
+    end
+    else
+    begin
+      data_out <= mult_sum[23:8];
+      valid_out <= valid_in_q3;
     end
   end
 
